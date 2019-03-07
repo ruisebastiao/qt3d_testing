@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>assets/binaries/monkey.vertices</file>
+        <file>assets/binaries/monkey.indices</file>
+        <file>assets/binaries/torus.vertices</file>
+        <file>assets/binaries/torus.indices</file>
+   </qresource>
+</RCC>

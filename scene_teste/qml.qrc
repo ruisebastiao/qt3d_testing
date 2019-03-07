@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/Torus.qml</file>
+        <file>qml/Monkey.qml</file>
+        <file>qml/Lamp.qml</file>
+        <file>qml/Blendercamera.qml</file>
+        <file>qml/main.qml</file>
+        <file>qml/MaterialCollection.qml</file>
+        <file>qml/MeshCollection.qml</file>
+   </qresource>
+</RCC>
