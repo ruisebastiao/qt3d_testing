@@ -1,4 +1,4 @@
-QT += quick 3dcore 3drender 3dinput 3dextras 3dquick qml 3dquickextras 3danimation
+QT += quick 3dcore 3drender 3dinput 3dextras 3dquick qml 3dquickextras 3danimation widgets
 CONFIG += c++11
 
 # The following define makes your compiler emit warnings if you use
@@ -15,9 +15,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
     editorutils.cpp \
-    qdummyobjectpicker.cpp
+    qdummyobjectpicker.cpp \
+    mycamera.cpp \
+    mysceneloader.cpp
 
-RESOURCES += qml.qrc
+RESOURCES += qml.qrc \
+    blender_teste/shaders.qrc \
+    blender_teste/buffers.qrc \
+    blender_teste/blender_teste_qml.qrc
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =
@@ -32,6 +37,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     editorutils.h \
-    qdummyobjectpicker.h
+    qdummyobjectpicker.h \
+    mycamera.h \
+    mysceneloader.h
 
-include(scene_teste/teste1.pri)
+#include(scene_teste/teste1.pri)

@@ -1,4 +1,4 @@
-
+import QtQuick.Controls 2.5 as QQC2
 
 import QtQuick.Scene3D 2.0
 import Qt3D.Core 2.0
@@ -7,13 +7,14 @@ import Qt3D.Input 2.0
 import Qt3D.Extras 2.9
 
 import QtQuick 2.12
-import QtQuick.Controls 2.5
+
 
 import base 1.0
 
-import "scene_teste/qml"
 
-ApplicationWindow {
+//import "scene_teste/qml"
+
+QQC2.ApplicationWindow {
     visible: true
     width: 640
     height: 480
@@ -54,7 +55,7 @@ ApplicationWindow {
                 InputSettings { }
             ]
 
-            OrbitCameraController {
+            SOrbitCameraController {
                 camera: mainCamera
                 linearSpeed: 20
                 lookSpeed: 400
@@ -62,13 +63,24 @@ ApplicationWindow {
 
             Camera {
                 id: mainCamera
-                //                position:  sceneLoader.structureTransform?sceneLoader.structureTransform.translation:Qt.vector3d(0, 0, 0)
-                //                position: Qt.vector3d(-11.4611, 9.17624, -14.4893)
-                //                viewCenter: sceneLoader.structureTransform?sceneLoader.structureTransform.translation:Qt.vector3d(0, 0, 0)
-                //                viewCenter: Qt.vector3d(1.9125, 1.19805, 1.73572)
-                viewCenter: "0,0,0"
-                //upVector: "0,0,1"
-                position: "0,0,10"
+
+
+
+
+                // viewCenter: "0,0,0"
+                onUpVectorChanged: {
+                    console.log("Up vector:"+upVector)
+                }
+
+                property vector3d baseViewCenter
+                property vector3d basePosition
+
+                function setBasePosition(){
+                    viewCenter=baseViewCenter
+                    position=basePosition
+                    upVector=Qt.vector3d(0,1,0);
+                }
+
                 onViewCenterChanged: {
                     console.log("viewCenter:"+viewCenter)
                 }
@@ -76,6 +88,13 @@ ApplicationWindow {
 
                 onPositionChanged: {
                     console.log("Position:"+position)
+                }
+
+                Behavior on upVector {
+                    Vector3dAnimation{
+                        easing: Easing.InOutCubic
+                        duration: 1000
+                    }
                 }
 
 
@@ -100,8 +119,8 @@ ApplicationWindow {
                 components: [
                     DirectionalLight {
                         worldDirection: Qt.vector3d(0, -3.0, 0.0).normalized();
-                        color: "#fbf9ce"
-                        intensity: 0.1
+                        color: "white"
+                        intensity: 0.5
                     }
                 ]
             }
@@ -109,8 +128,8 @@ ApplicationWindow {
                 components: [
                     DirectionalLight {
                         worldDirection: Qt.vector3d(-3, 0, 0.0).normalized();
-                        color: "#fbf9ce"
-                        intensity: 0.1
+                        color: "white"
+                        intensity: 0.5
                     }
                 ]
             }
@@ -119,15 +138,15 @@ ApplicationWindow {
                 components: [
                     DirectionalLight {
                         worldDirection: Qt.vector3d(3, 0, 0.0).normalized();
-                        color: "#fbf9ce"
-                        intensity: 0.1
+                        color: "white"
+                        intensity: 0.5
                     }
                 ]
             }
 
+
             Entity {
                 id:lm36_scene
-
 
 
                 Transform{
@@ -189,7 +208,7 @@ ApplicationWindow {
 
                 property Transform torusTransform
                 onTorusTransformChanged: {
-                    console.log("qentityTransform:"+utils.qentityTransform(torus).translation)
+                    console.log("qentityTransform:"+torusTransform.translation)
 
                 }
 
@@ -198,12 +217,26 @@ ApplicationWindow {
 
                 SceneLoader{
                     id:sceneLoader
-                    source: "file:///home/rui/projects/cad/teste.obj"
+                    source: "file:///home/rui/projects/cad/teste.dae"
+
+                    Timer{
+                        id:tm01_getpos
+                        interval: 250
+                        onTriggered: {
+                            mainCamera.basePosition=mainCamera.position
+                            mainCamera.baseViewCenter=mainCamera.viewCenter
+                        }
+
+                        repeat: false
+                    }
 
                     onStatusChanged: {
                         console.log("SceneLoader status: " + status);
                         if (status == SceneLoader.Ready) {
                             console.log("Scene is ready");
+
+                            mainCamera.viewAll();
+                            tm01_getpos.start()
 
                             console.log("entityNames:"+sceneLoader.entityNames());
 
@@ -221,18 +254,138 @@ ApplicationWindow {
         }
     }
 
-    Button{
-        width: 100
-        height: 50
-        text: "test"
+    Flow{
+
+        QQC2.Button{
+            width: 100
+            height: 50
+            text: "Fit torus"
 
 
-        onClicked: {
+            onClicked: {
 
-//            mainCamera.viewEntity(lm36_scene.torus)
-            //mainCamera.viewAll()
-            console.log("lm36_scene.monkey:"+lm36_scene.monkey)
-            mainCamera.translate(Qt.vector3d(1, 1, 1),Camera.TranslateViewCenter)
+                var len = mainCamera.viewVector.length();
+                mainCamera.viewCenter=lm36_scene.torusTransform.translation.times(Qt.vector3d(1,1,-1))
+                mainCamera.position=lm36_scene.torusTransform.translation
+                mainCamera.upVector=Qt.vector3d(0,1,0);
+
+                //            mainCamera.viewAll()
+
+                //            mainCamera.translate(lm36_scene.torusTransform.translation,Camera.TranslateViewCenter)
+            }
         }
+
+        QQC2.Button{
+            width: 100
+            height: 50
+            text: "View all"
+
+
+            onClicked: {
+
+                mainCamera.setBasePosition()
+
+
+            }
+        }
+        QQC2.Button{
+            width: 100
+            height: 50
+            text: "Top"
+
+
+
+            onClicked: {
+
+                var cameraDirection=Qt.vector3d(0,0,0);
+                var up=Qt.vector3d(0,0,-1);
+
+                cameraDirection.y=1
+
+                // Keep the current distance and viewcenter, but change upvector to properly orient the camera.
+                var len = mainCamera.viewVector.length();
+                mainCamera.position=mainCamera.viewCenter.plus(cameraDirection.times(len));
+                mainCamera.upVector=up
+
+
+
+            }
+        }
+
+        QQC2.Button{
+            width: 100
+            height: 50
+            text: "Left"
+
+
+
+            onClicked: {
+
+                var cameraDirection=Qt.vector3d(0,0,0);
+                var up=Qt.vector3d(0,1,0);
+
+                cameraDirection.x=1
+
+                // Keep the current distance and viewcenter, but change upvector to properly orient the camera.
+                var len = mainCamera.viewVector.length();
+                mainCamera.position=mainCamera.viewCenter.plus(cameraDirection.times(len));
+                mainCamera.upVector=up
+
+
+
+            }
+        }
+
+        QQC2.Button{
+            width: 100
+            height: 50
+            text: "Right"
+
+
+
+            onClicked: {
+
+                var cameraDirection=Qt.vector3d(0,0,0);
+                var up=Qt.vector3d(0,1,0);
+
+                cameraDirection.x=-1
+
+                // Keep the current distance and viewcenter, but change upvector to properly orient the camera.
+                var len = mainCamera.viewVector.length();
+                mainCamera.position=mainCamera.viewCenter.plus(cameraDirection.times(len));
+                mainCamera.upVector=up
+
+
+
+            }
+        }
+
+
+        QQC2.Button{
+            width: 100
+            height: 50
+            text: "Back"
+
+
+
+            onClicked: {
+
+                var cameraDirection=Qt.vector3d(0,0,0);
+                var up=Qt.vector3d(0,1,0);
+
+                cameraDirection.z=-1
+
+                // Keep the current distance and viewcenter, but change upvector to properly orient the camera.
+                var len = mainCamera.viewVector.length();
+                mainCamera.position=mainCamera.viewCenter.plus(cameraDirection.times(len));
+                mainCamera.upVector=up
+
+
+
+            }
+        }
+
+
     }
+
 }
