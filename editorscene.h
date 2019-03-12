@@ -77,6 +77,7 @@ class EditorScene : public QObject
     Q_OBJECT
 
     Q_PROPERTY(Qt3DCore::QEntity *selection READ selection WRITE setSelection NOTIFY selectionChanged)
+    Q_PROPERTY(SceneItem *selectionItem READ selectionItem NOTIFY selectionItemChanged)
 
     Q_PROPERTY(Qt3DCore::QEntity *sceneEntity READ sceneEntity WRITE setSceneEntity NOTIFY sceneEntityChanged)
 
@@ -240,9 +241,23 @@ public:
         return m_sceneEntity;
     }
 
+    SceneItem * selectionItem() const
+    {
+        return m_selectionItem;
+    }
+
 public slots:
     void clearSelectionBoxes(Qt3DCore::QEntity *skipEntity = nullptr);
     void setSceneEntity(Qt3DCore::QEntity *newSceneEntity = nullptr);
+
+    void setSelectionItem(SceneItem * selectionItem)
+    {
+        if (m_selectionItem == selectionItem)
+            return;
+
+        m_selectionItem = selectionItem;
+        emit selectionItemChanged(m_selectionItem);
+    }
 
 signals:
     void selectionChanged(Qt3DCore::QEntity *selection);
@@ -268,6 +283,8 @@ signals:
     void activeCameraChanged(Qt3DRender::QCamera* activeCamera);
 
     void sceneEntityChanged(Qt3DCore::QEntity * sceneEntity);
+
+    void selectionItemChanged(SceneItem * selectionItem);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
@@ -400,6 +417,7 @@ private:
     bool m_groupBoxUpdatePending;
 
     Qt3DRender::QCamera* m_activeCamera;
+    SceneItem * m_selectionItem;
 };
 
 #endif // EDITORSCENE_H

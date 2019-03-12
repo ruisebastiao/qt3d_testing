@@ -261,7 +261,12 @@ QQC2.ApplicationWindow {
         viewport:viewport
 
         onSelectionChanged: {
-            console.log("Selection:"+selection)
+
+        }
+
+
+        onSelectionItemChanged: {
+            console.log("Selection Item:"+selectionItem.selectionBoxCenter())
         }
 
         Behavior on activeCamera.upVector {
@@ -394,9 +399,9 @@ QQC2.ApplicationWindow {
             onClicked: {
 
                 var len = mainCamera.viewVector.length();
-//                mainCamera.viewCenter=lm36_scene.torusTransform.translation.times(Qt.vector3d(1,1,-1))
-//                mainCamera.position=lm36_scene.torusTransform.translation
-//                mainCamera.upVector=Qt.vector3d(0,1,0);
+                mainCamera.viewCenter=scene.selectionItem.selectionBoxCenter().times(Qt.vector3d(1,1,-1))
+                mainCamera.position=scene.selectionItem.selectionBoxCenter()
+                mainCamera.upVector=Qt.vector3d(0,1,0);
 
                 //            mainCamera.viewAll()
 

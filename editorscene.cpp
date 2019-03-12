@@ -845,6 +845,9 @@ void EditorScene::setSelection(Qt3DCore::QEntity *entity)
         if (m_selectedEntity != m_sceneEntity)
             setSelection(m_sceneEntity);
     }
+
+    setSelectionItem(item);
+
 }
 
 void EditorScene::toggleEntityMultiSelection(const QString &name)
