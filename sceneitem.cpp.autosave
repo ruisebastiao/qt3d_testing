@@ -506,129 +506,125 @@ void SceneItem::findTotalExtents(QVector3D &min, QVector3D &max, const QMatrix4x
     //        child->findTotalExtents(min, max, newMatrix);
 }
 
+
 void SceneItem::connectEntityMesh(bool enabled)
 {
-
+    if (enabled) {
+        switch (m_entityMeshType) {
+        case SceneItemMeshComponentsModel::Custom: {
+            Qt3DRender::QMesh *mesh = qobject_cast<Qt3DRender::QMesh *>(m_entityMesh);
+            connect(mesh, &Qt3DRender::QMesh::sourceChanged,
+                    this, &SceneItem::recalculateMeshExtents);
+            break;
+        }
+        case SceneItemMeshComponentsModel::Cuboid: {
+            Qt3DExtras::QCuboidMesh *mesh =
+                    qobject_cast<Qt3DExtras::QCuboidMesh *>(m_entityMesh);
+            connect(mesh, &Qt3DExtras::QCuboidMesh::xExtentChanged,
+                    this, &SceneItem::recalculateMeshExtents);
+            connect(mesh, &Qt3DExtras::QCuboidMesh::yExtentChanged,
+                    this, &SceneItem::recalculateMeshExtents);
+            connect(mesh, &Qt3DExtras::QCuboidMesh::zExtentChanged,
+                    this, &SceneItem::recalculateMeshExtents);
+            break;
+        }
+        case SceneItemMeshComponentsModel::Cylinder: {
+            Qt3DExtras::QCylinderMesh *mesh =
+                    qobject_cast<Qt3DExtras::QCylinderMesh *>(m_entityMesh);
+            connect(mesh, &Qt3DExtras::QCylinderMesh::radiusChanged,
+                    this, &SceneItem::recalculateMeshExtents);
+            connect(mesh, &Qt3DExtras::QCylinderMesh::lengthChanged,
+                    this, &SceneItem::recalculateMeshExtents);
+            break;
+        }
+        case SceneItemMeshComponentsModel::Plane: {
+            Qt3DExtras::QPlaneMesh *mesh =
+                    qobject_cast<Qt3DExtras::QPlaneMesh *>(m_entityMesh);
+            connect(mesh, &Qt3DExtras::QPlaneMesh::widthChanged,
+                    this, &SceneItem::recalculateMeshExtents);
+            connect(mesh, &Qt3DExtras::QPlaneMesh::heightChanged,
+                    this, &SceneItem::recalculateMeshExtents);
+            break;
+        }
+        case SceneItemMeshComponentsModel::Sphere: {
+            Qt3DExtras::QSphereMesh *mesh =
+                    qobject_cast<Qt3DExtras::QSphereMesh *>(m_entityMesh);
+            connect(mesh, &Qt3DExtras::QSphereMesh::radiusChanged,
+                    this, &SceneItem::recalculateMeshExtents);
+            break;
+        }
+        case SceneItemMeshComponentsModel::Torus: {
+            Qt3DExtras::QTorusMesh *mesh =
+                    qobject_cast<Qt3DExtras::QTorusMesh *>(m_entityMesh);
+            connect(mesh, &Qt3DExtras::QTorusMesh::radiusChanged,
+                    this, &SceneItem::recalculateMeshExtents);
+            connect(mesh, &Qt3DExtras::QTorusMesh::minorRadiusChanged,
+                    this, &SceneItem::recalculateMeshExtents);
+            break;
+        }
+        default:
+            //Unsupported mesh type
+            break;
+        }
+    } else {
+        switch (m_entityMeshType) {
+        case SceneItemMeshComponentsModel::Custom: {
+            Qt3DRender::QMesh *mesh = qobject_cast<Qt3DRender::QMesh *>(m_entityMesh);
+            disconnect(mesh, &Qt3DRender::QMesh::sourceChanged,
+                       this, &SceneItem::recalculateMeshExtents);
+            break;
+        }
+        case SceneItemMeshComponentsModel::Cuboid: {
+            Qt3DExtras::QCuboidMesh *mesh =
+                    qobject_cast<Qt3DExtras::QCuboidMesh *>(m_entityMesh);
+            disconnect(mesh, &Qt3DExtras::QCuboidMesh::xExtentChanged,
+                       this, &SceneItem::recalculateMeshExtents);
+            disconnect(mesh, &Qt3DExtras::QCuboidMesh::yExtentChanged,
+                       this, &SceneItem::recalculateMeshExtents);
+            disconnect(mesh, &Qt3DExtras::QCuboidMesh::zExtentChanged,
+                       this, &SceneItem::recalculateMeshExtents);
+            break;
+        }
+        case SceneItemMeshComponentsModel::Cylinder: {
+            Qt3DExtras::QCylinderMesh *mesh =
+                    qobject_cast<Qt3DExtras::QCylinderMesh *>(m_entityMesh);
+            disconnect(mesh, &Qt3DExtras::QCylinderMesh::radiusChanged,
+                       this, &SceneItem::recalculateMeshExtents);
+            disconnect(mesh, &Qt3DExtras::QCylinderMesh::lengthChanged,
+                       this, &SceneItem::recalculateMeshExtents);
+            break;
+        }
+        case SceneItemMeshComponentsModel::Plane: {
+            Qt3DExtras::QPlaneMesh *mesh =
+                    qobject_cast<Qt3DExtras::QPlaneMesh *>(m_entityMesh);
+            disconnect(mesh, &Qt3DExtras::QPlaneMesh::widthChanged,
+                       this, &SceneItem::recalculateMeshExtents);
+            disconnect(mesh, &Qt3DExtras::QPlaneMesh::heightChanged,
+                       this, &SceneItem::recalculateMeshExtents);
+            break;
+        }
+        case SceneItemMeshComponentsModel::Sphere: {
+            Qt3DExtras::QSphereMesh *mesh =
+                    qobject_cast<Qt3DExtras::QSphereMesh *>(m_entityMesh);
+            disconnect(mesh, &Qt3DExtras::QSphereMesh::radiusChanged,
+                       this, &SceneItem::recalculateMeshExtents);
+            break;
+        }
+        case SceneItemMeshComponentsModel::Torus: {
+            Qt3DExtras::QTorusMesh *mesh =
+                    qobject_cast<Qt3DExtras::QTorusMesh *>(m_entityMesh);
+            disconnect(mesh, &Qt3DExtras::QTorusMesh::radiusChanged,
+                       this, &SceneItem::recalculateMeshExtents);
+            disconnect(mesh, &Qt3DExtras::QTorusMesh::minorRadiusChanged,
+                       this, &SceneItem::recalculateMeshExtents);
+            break;
+        }
+        default:
+            //Unsupported mesh type
+            break;
+        }
+    }
 }
-
-//void SceneItem::connectEntityMesh(bool enabled)
-//{
-//    if (enabled) {
-//        switch (m_entityMeshType) {
-//        case SceneItemMeshComponentsModel::Custom: {
-//            Qt3DRender::QMesh *mesh = qobject_cast<Qt3DRender::QMesh *>(m_entityMesh);
-//            connect(mesh, &Qt3DRender::QMesh::sourceChanged,
-//                    this, &SceneItem::recalculateMeshExtents);
-//            break;
-//        }
-//        case SceneItemMeshComponentsModel::Cuboid: {
-//            Qt3DExtras::QCuboidMesh *mesh =
-//                    qobject_cast<Qt3DExtras::QCuboidMesh *>(m_entityMesh);
-//            connect(mesh, &Qt3DExtras::QCuboidMesh::xExtentChanged,
-//                    this, &SceneItem::recalculateMeshExtents);
-//            connect(mesh, &Qt3DExtras::QCuboidMesh::yExtentChanged,
-//                    this, &SceneItem::recalculateMeshExtents);
-//            connect(mesh, &Qt3DExtras::QCuboidMesh::zExtentChanged,
-//                    this, &SceneItem::recalculateMeshExtents);
-//            break;
-//        }
-//        case SceneItemMeshComponentsModel::Cylinder: {
-//            Qt3DExtras::QCylinderMesh *mesh =
-//                    qobject_cast<Qt3DExtras::QCylinderMesh *>(m_entityMesh);
-//            connect(mesh, &Qt3DExtras::QCylinderMesh::radiusChanged,
-//                    this, &SceneItem::recalculateMeshExtents);
-//            connect(mesh, &Qt3DExtras::QCylinderMesh::lengthChanged,
-//                    this, &SceneItem::recalculateMeshExtents);
-//            break;
-//        }
-//        case SceneItemMeshComponentsModel::Plane: {
-//            Qt3DExtras::QPlaneMesh *mesh =
-//                    qobject_cast<Qt3DExtras::QPlaneMesh *>(m_entityMesh);
-//            connect(mesh, &Qt3DExtras::QPlaneMesh::widthChanged,
-//                    this, &SceneItem::recalculateMeshExtents);
-//            connect(mesh, &Qt3DExtras::QPlaneMesh::heightChanged,
-//                    this, &SceneItem::recalculateMeshExtents);
-//            break;
-//        }
-//        case SceneItemMeshComponentsModel::Sphere: {
-//            Qt3DExtras::QSphereMesh *mesh =
-//                    qobject_cast<Qt3DExtras::QSphereMesh *>(m_entityMesh);
-//            connect(mesh, &Qt3DExtras::QSphereMesh::radiusChanged,
-//                    this, &SceneItem::recalculateMeshExtents);
-//            break;
-//        }
-//        case SceneItemMeshComponentsModel::Torus: {
-//            Qt3DExtras::QTorusMesh *mesh =
-//                    qobject_cast<Qt3DExtras::QTorusMesh *>(m_entityMesh);
-//            connect(mesh, &Qt3DExtras::QTorusMesh::radiusChanged,
-//                    this, &SceneItem::recalculateMeshExtents);
-//            connect(mesh, &Qt3DExtras::QTorusMesh::minorRadiusChanged,
-//                    this, &SceneItem::recalculateMeshExtents);
-//            break;
-//        }
-//        default:
-//            //Unsupported mesh type
-//            break;
-//        }
-//    } else {
-//        switch (m_entityMeshType) {
-//        case SceneItemMeshComponentsModel::Custom: {
-//            Qt3DRender::QMesh *mesh = qobject_cast<Qt3DRender::QMesh *>(m_entityMesh);
-//            disconnect(mesh, &Qt3DRender::QMesh::sourceChanged,
-//                       this, &SceneItem::recalculateMeshExtents);
-//            break;
-//        }
-//        case SceneItemMeshComponentsModel::Cuboid: {
-//            Qt3DExtras::QCuboidMesh *mesh =
-//                    qobject_cast<Qt3DExtras::QCuboidMesh *>(m_entityMesh);
-//            disconnect(mesh, &Qt3DExtras::QCuboidMesh::xExtentChanged,
-//                       this, &SceneItem::recalculateMeshExtents);
-//            disconnect(mesh, &Qt3DExtras::QCuboidMesh::yExtentChanged,
-//                       this, &SceneItem::recalculateMeshExtents);
-//            disconnect(mesh, &Qt3DExtras::QCuboidMesh::zExtentChanged,
-//                       this, &SceneItem::recalculateMeshExtents);
-//            break;
-//        }
-//        case SceneItemMeshComponentsModel::Cylinder: {
-//            Qt3DExtras::QCylinderMesh *mesh =
-//                    qobject_cast<Qt3DExtras::QCylinderMesh *>(m_entityMesh);
-//            disconnect(mesh, &Qt3DExtras::QCylinderMesh::radiusChanged,
-//                       this, &SceneItem::recalculateMeshExtents);
-//            disconnect(mesh, &Qt3DExtras::QCylinderMesh::lengthChanged,
-//                       this, &SceneItem::recalculateMeshExtents);
-//            break;
-//        }
-//        case SceneItemMeshComponentsModel::Plane: {
-//            Qt3DExtras::QPlaneMesh *mesh =
-//                    qobject_cast<Qt3DExtras::QPlaneMesh *>(m_entityMesh);
-//            disconnect(mesh, &Qt3DExtras::QPlaneMesh::widthChanged,
-//                       this, &SceneItem::recalculateMeshExtents);
-//            disconnect(mesh, &Qt3DExtras::QPlaneMesh::heightChanged,
-//                       this, &SceneItem::recalculateMeshExtents);
-//            break;
-//        }
-//        case SceneItemMeshComponentsModel::Sphere: {
-//            Qt3DExtras::QSphereMesh *mesh =
-//                    qobject_cast<Qt3DExtras::QSphereMesh *>(m_entityMesh);
-//            disconnect(mesh, &Qt3DExtras::QSphereMesh::radiusChanged,
-//                       this, &SceneItem::recalculateMeshExtents);
-//            break;
-//        }
-//        case SceneItemMeshComponentsModel::Torus: {
-//            Qt3DExtras::QTorusMesh *mesh =
-//                    qobject_cast<Qt3DExtras::QTorusMesh *>(m_entityMesh);
-//            disconnect(mesh, &Qt3DExtras::QTorusMesh::radiusChanged,
-//                       this, &SceneItem::recalculateMeshExtents);
-//            disconnect(mesh, &Qt3DExtras::QTorusMesh::minorRadiusChanged,
-//                       this, &SceneItem::recalculateMeshExtents);
-//            break;
-//        }
-//        default:
-//            //Unsupported mesh type
-//            break;
-//        }
-//    }
-//}
 
 void SceneItem::updateSelectionBoxTransform()
 {

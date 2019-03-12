@@ -2,5 +2,8 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>SOrbitCameraController.qml</file>
+        <file>main_copy.qml</file>
+        <file>shaders/ontopmaterial.frag</file>
+        <file>shaders/ontopmaterial.vert</file>
     </qresource>
 </RCC>

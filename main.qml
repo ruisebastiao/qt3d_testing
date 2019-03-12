@@ -24,97 +24,268 @@ QQC2.ApplicationWindow {
         id:utils
     }
 
-    Scene3D {
-        id: scene3d
+    //    Scene3D {
+    //        id: scene3d
 
-        anchors.fill: parent
-        anchors.margins: 10
-        focus: true
-        aspects: ["input", "logic"]
-        cameraAspectRatioMode: Scene3D.AutomaticAspectRatio
-        hoverEnabled: true
+    //        anchors.fill: parent
+    //        anchors.margins: 10
+    //        focus: true
+    //        aspects: ["input", "logic"]
+    //        cameraAspectRatioMode: Scene3D.AutomaticAspectRatio
+    //        hoverEnabled: true
 
-        Entity {
-            id: scene_root
+    //        Entity {
+    //            id: scene_root
 
 
-            property real metalness
-            property real roughness
-            property real exposure:1.5
-            property real gamma:1.8
+    //            property real metalness
+    //            property real roughness
+    //            property real exposure:1.5
+    //            property real gamma:1.8
 
-            components: [
-                RenderSettings {
-                    activeFrameGraph: ForwardRenderer {
-                        camera: mainCamera
-                        clearColor: "white"
-                        //                        gamma: scene.gamma
-                    }
-                },
-                // Event Source will be set by the Qt3DQuickWindow
-                InputSettings { }
-            ]
+    //            components: [
+    //                RenderSettings {
+    //                    activeFrameGraph: ForwardRenderer {
+    //                        camera: mainCamera
+    //                        clearColor: "white"
+    //                        //                        gamma: scene.gamma
+    //                    }
+    //                },
+    //                // Event Source will be set by the Qt3DQuickWindow
+    //                InputSettings { }
+    //            ]
 
-            SOrbitCameraController {
-                camera: mainCamera
-                linearSpeed: 20
-                lookSpeed: 400
+    //            SOrbitCameraController {
+    //                camera: mainCamera
+    //                linearSpeed: 20
+    //                lookSpeed: 400
+    //            }
+
+    //            Camera {
+    //                id: mainCamera
+
+
+
+
+    //                // viewCenter: "0,0,0"
+    //                onUpVectorChanged: {
+    //                    console.log("Up vector:"+upVector)
+    //                }
+
+    //                property vector3d baseViewCenter
+    //                property vector3d basePosition
+
+    //                function setBasePosition(){
+    //                    viewCenter=baseViewCenter
+    //                    position=basePosition
+    //                    upVector=Qt.vector3d(0,1,0);
+    //                }
+
+    //                onViewCenterChanged: {
+    //                    console.log("viewCenter:"+viewCenter)
+    //                }
+    //                projectionType: CameraLens.PerspectiveProjection
+
+    //                onPositionChanged: {
+    //                    console.log("Position:"+position)
+    //                }
+
+    //                Behavior on upVector {
+    //                    Vector3dAnimation{
+    //                        easing: Easing.InOutCubic
+    //                        duration: 1000
+    //                    }
+    //                }
+
+
+
+    //                Behavior on viewCenter {
+    //                    Vector3dAnimation{
+    //                        easing: Easing.InOutCubic
+    //                        duration: 1000
+    //                    }
+    //                }
+
+    //                Behavior on position {
+    //                    Vector3dAnimation{
+    //                        easing: Easing.InOutCubic
+    //                        duration: 1000
+    //                    }
+    //                }
+
+    //                exposure: scene_root.exposure
+    //            }
+    //            Entity {
+    //                components: [
+    //                    DirectionalLight {
+    //                        worldDirection: Qt.vector3d(0, -3.0, 0.0).normalized();
+    //                        color: "white"
+    //                        intensity: 0.5
+    //                    }
+    //                ]
+    //            }
+    //            Entity {
+    //                components: [
+    //                    DirectionalLight {
+    //                        worldDirection: Qt.vector3d(-3, 0, 0.0).normalized();
+    //                        color: "white"
+    //                        intensity: 0.5
+    //                    }
+    //                ]
+    //            }
+
+    //            Entity {
+    //                components: [
+    //                    DirectionalLight {
+    //                        worldDirection: Qt.vector3d(3, 0, 0.0).normalized();
+    //                        color: "white"
+    //                        intensity: 0.5
+    //                    }
+    //                ]
+    //            }
+
+
+    //            Entity {
+    //                id:lm36_scene
+
+
+    //                Transform{
+    //                    id: lm36_scene_Transform
+    //                    Behavior on translation {
+    //                        Vector3dAnimation{
+    //                            duration: 1000
+    //                        }
+    //                    }
+
+    //                    translation: Qt.vector3d(0, 0, 0) //random values, choose your own
+    //                }
+
+    //                property Entity monkey
+    //                onMonkeyChanged: {
+    //                    console.log("monkey entity set")
+    //                    for (var i = 0; i < monkey.components.length; ++i) {
+
+    //                        var cmp=monkey.components[i]
+    //                        if(cmp){
+    //                            var cmp_class=cmp.toString();
+    //                            if(cmp_class.indexOf("Qt3DCore::QTransform")>=0){
+    //                                monkeyTransform=cmp
+    //                            }
+
+    //                        }
+
+
+
+    //                    }
+
+    //                }
+
+    //                property Transform monkeyTransform
+    //                onMonkeyTransformChanged: {
+    //                    console.log("monkeyTransform:"+monkeyTransform.matrix)
+    //                }
+
+
+    //                property Entity torus
+    //                onTorusChanged: {
+    //                    console.log("torus entity set")
+    //                    for (var i = 0; i < torus.components.length; ++i) {
+
+    //                        var cmp=torus.components[i]
+    //                        if(cmp){
+    //                            var cmp_class=cmp.toString();
+    //                            if(cmp_class.indexOf("Qt3DCore::QTransform")>=0){
+    //                                torusTransform=cmp
+    //                            }
+
+    //                        }
+
+
+
+    //                    }
+
+    //                }
+
+    //                property Transform torusTransform
+    //                onTorusTransformChanged: {
+    //                    console.log("qentityTransform:"+torusTransform.translation)
+
+    //                }
+
+
+
+
+    //                MySceneLoader{
+    //                    id:sceneLoader
+    //                    source: "file:///home/rui/projects/cad/teste.dae"
+
+    //                    Timer{
+    //                        id:tm01_getpos
+    //                        interval: 250
+    //                        onTriggered: {
+    //                            mainCamera.basePosition=mainCamera.position
+    //                            mainCamera.baseViewCenter=mainCamera.viewCenter
+    //                        }
+
+    //                        repeat: false
+    //                    }
+
+    //                    onStatusChanged: {
+    //                        console.log("SceneLoader status: " + status);
+    //                        if (status == SceneLoader.Ready) {
+    //                            console.log("Scene is ready");
+
+    //                            mainCamera.viewAll();
+    //                            tm01_getpos.start()
+
+    //                            console.log("entityNames:"+sceneLoader.entityNames());
+
+
+    //                            lm36_scene.monkey=sceneLoader.entity("monkey");
+    //                            lm36_scene.torus=sceneLoader.entity("torus");
+    //                        }
+    //                    }
+    //                }
+
+    //                components:[sceneLoader,lm36_scene_Transform]
+
+    //            }
+
+
+
+    //        }
+    //    }
+
+    EditorScene{
+        id:scene
+        viewport:viewport
+        Behavior on activeCamera.upVector {
+            Vector3dAnimation{
+                easing: Easing.InOutCubic
+                duration: 1000
             }
-
-            Camera {
-                id: mainCamera
+        }
 
 
 
-
-                // viewCenter: "0,0,0"
-                onUpVectorChanged: {
-                    console.log("Up vector:"+upVector)
-                }
-
-                property vector3d baseViewCenter
-                property vector3d basePosition
-
-                function setBasePosition(){
-                    viewCenter=baseViewCenter
-                    position=basePosition
-                    upVector=Qt.vector3d(0,1,0);
-                }
-
-                onViewCenterChanged: {
-                    console.log("viewCenter:"+viewCenter)
-                }
-                projectionType: CameraLens.PerspectiveProjection
-
-                onPositionChanged: {
-                    console.log("Position:"+position)
-                }
-
-                Behavior on upVector {
-                    Vector3dAnimation{
-                        easing: Easing.InOutCubic
-                        duration: 1000
-                    }
-                }
-
-
-
-                Behavior on viewCenter {
-                    Vector3dAnimation{
-                        easing: Easing.InOutCubic
-                        duration: 1000
-                    }
-                }
-
-                Behavior on position {
-                    Vector3dAnimation{
-                        easing: Easing.InOutCubic
-                        duration: 1000
-                    }
-                }
-
-                exposure: scene_root.exposure
+        Behavior on activeCamera.viewCenter {
+            Vector3dAnimation{
+                easing: Easing.InOutCubic
+                duration: 1000
             }
+        }
+
+        Behavior on activeCamera.position {
+            Vector3dAnimation{
+                easing: Easing.InOutCubic
+                duration: 1000
+            }
+        }
+
+
+        sceneEntity:  Entity {
+            id:scene_entity
+
             Entity {
                 components: [
                     DirectionalLight {
@@ -144,119 +315,70 @@ QQC2.ApplicationWindow {
                 ]
             }
 
-
             Entity {
-                id:lm36_scene
-
-
-                Transform{
-                    id: lm36_scene_Transform
-                    Behavior on translation {
-                        Vector3dAnimation{
-                            duration: 1000
-                        }
+                components: [
+                    DirectionalLight {
+                        worldDirection: Qt.vector3d(-3, 0, 0.0).normalized();
+                        color: "white"
+                        intensity: 0.5
                     }
-
-                    translation: Qt.vector3d(0, 0, 0) //random values, choose your own
-                }
-
-                property Entity monkey
-                onMonkeyChanged: {
-                    console.log("monkey entity set")
-                    for (var i = 0; i < monkey.components.length; ++i) {
-
-                        var cmp=monkey.components[i]
-                        if(cmp){
-                            var cmp_class=cmp.toString();
-                            if(cmp_class.indexOf("Qt3DCore::QTransform")>=0){
-                                monkeyTransform=cmp
-                            }
-
-                        }
-
-
-
-                    }
-
-                }
-
-                property Transform monkeyTransform
-                onMonkeyTransformChanged: {
-                    console.log("monkeyTransform:"+monkeyTransform.matrix)
-                }
-
-
-                property Entity torus
-                onTorusChanged: {
-                    console.log("torus entity set")
-                    for (var i = 0; i < torus.components.length; ++i) {
-
-                        var cmp=torus.components[i]
-                        if(cmp){
-                            var cmp_class=cmp.toString();
-                            if(cmp_class.indexOf("Qt3DCore::QTransform")>=0){
-                                torusTransform=cmp
-                            }
-
-                        }
-
-
-
-                    }
-
-                }
-
-                property Transform torusTransform
-                onTorusTransformChanged: {
-                    console.log("qentityTransform:"+torusTransform.translation)
-
-                }
-
-
-
-
-                MySceneLoader{
-                    id:sceneLoader
-                    source: "file:///home/rui/projects/cad/teste.dae"
-
-                    Timer{
-                        id:tm01_getpos
-                        interval: 250
-                        onTriggered: {
-                            mainCamera.basePosition=mainCamera.position
-                            mainCamera.baseViewCenter=mainCamera.viewCenter
-                        }
-
-                        repeat: false
-                    }
-
-                    onStatusChanged: {
-                        console.log("SceneLoader status: " + status);
-                        if (status == SceneLoader.Ready) {
-                            console.log("Scene is ready");
-
-                            mainCamera.viewAll();
-                            tm01_getpos.start()
-
-                            console.log("entityNames:"+sceneLoader.entityNames());
-
-
-                            lm36_scene.monkey=sceneLoader.entity("monkey");
-                            lm36_scene.torus=sceneLoader.entity("torus");
-                        }
-                    }
-                }
-
-                components:[sceneLoader,lm36_scene_Transform]
-
+                ]
             }
+
 
 
 
         }
     }
 
+    EditorViewport{
+        id:viewport
+        anchors.fill: parent
+        scene: scene
+
+    }
+
+    //    SceneLoader{
+    //        id:sceneLoader
+    //        source: "file:///home/rui/projects/cad/teste.dae"
+
+    //        onStatusChanged: {
+    //            console.log("SceneLoader status: " + status);
+    //            if (status == SceneLoader.Ready) {
+    //                console.log("Scene is ready");
+
+
+    ////                mainCamera.viewAll();
+    ////                tm01_getpos.start()
+
+    ////                console.log("entityNames:"+sceneLoader.entityNames());
+
+
+    ////                lm36_scene.monkey=sceneLoader.entity("monkey");
+    ////                lm36_scene.torus=sceneLoader.entity("torus");
+    //            }
+    //        }
+    //    }
+
+
+    property alias mainCamera: scene.activeCamera
     Flow{
+
+
+
+        QQC2.Button{
+            width: 100
+            height: 50
+            text: "Load"
+
+
+            onClicked: {
+
+                scene.loadFile("file:///home/rui/projects/cad/teste.dae")
+            }
+        }
+
+
 
         QQC2.Button{
             width: 100

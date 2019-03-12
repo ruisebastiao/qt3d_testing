@@ -17,7 +17,8 @@ namespace Qt3DRender {
 }
 
 
-//class EditorSceneItemComponentsModel;
+class EditorScene;
+
 
 class SceneItem : public QObject
 {
@@ -38,9 +39,9 @@ public:
         Other
     };
 
-    SceneItem(Qt3DCore::QEntity *entity,
-              SceneItem *parentItem,
-              int index, QObject *parent);
+    SceneItem(EditorScene *scene, Qt3DCore::QEntity *entity,
+              SceneItem *parentItem = nullptr,
+              int index = -1, QObject *parent = nullptr);
     ~SceneItem();
 
     Q_INVOKABLE Qt3DCore::QEntity *entity();
@@ -105,13 +106,22 @@ private:
 
     void findTotalExtents(QVector3D &min, QVector3D &max, const QMatrix4x4 &matrix);
 
+    void connectEntityMesh(bool enabled);
+
+
+
+    QMatrix4x4 m_unadjustedSelectionBoxMatrix;
+    EditorSceneItemMeshComponentsModel::MeshComponentTypes m_entityMeshType;
+
+    bool m_useGeometryFunctor;
+    ItemType m_itemType;
 
     Qt3DCore::QEntity *m_entity; // Not owned
 
     SceneItem *m_parentItem; // Not owned
     QList<SceneItem *> m_children;
 
-
+    EditorScene *m_scene; // Not owned
 
 
     Qt3DCore::QEntity *m_selectionBox;  // Created, but not owned

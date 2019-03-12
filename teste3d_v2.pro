@@ -1,4 +1,5 @@
-QT += quick 3dcore 3drender 3dinput 3dextras 3dquick qml 3dquickextras 3danimation widgets
+QT += quick 3dcore 3drender 3dinput 3dextras 3dquick qml 3dquickextras 3danimation widgets 3drender-private
+
 CONFIG += c++11
 
 # The following define makes your compiler emit warnings if you use
@@ -18,7 +19,11 @@ SOURCES += \
     qdummyobjectpicker.cpp \
     mycamera.cpp \
     mysceneloader.cpp \
-    sceneitem.cpp
+    sceneitem.cpp \
+    editorscene.cpp \
+    editorviewportitem.cpp \
+    inputcontrols/editorcameracontroller.cpp \
+    materials/ontopeffect.cpp
 
 RESOURCES += qml.qrc \
     blender_teste/shaders.qrc \
@@ -41,6 +46,12 @@ HEADERS += \
     qdummyobjectpicker.h \
     mycamera.h \
     mysceneloader.h \
-    sceneitem.h
+    sceneitem.h \
+    editorscene.h \
+    editorviewportitem.h \
+    inputcontrols/editorcameracontroller.h \
+    materials/ontopeffect.h
 
 #include(scene_teste/teste1.pri)
+
+INCLUDEPATH += components materials inputcontrols

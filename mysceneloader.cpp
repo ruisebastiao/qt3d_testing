@@ -3,13 +3,13 @@
 #include <QMetalRoughMaterial>
 #include <QObjectPicker>
 #include <QRenderTarget>
-#include <QPickEvent>
+
 
 using namespace Qt3DCore;
 using namespace Qt3DRender;
 using namespace Qt3DExtras;
 
-MySceneLoader::MySceneLoader()
+MySceneLoader::MySceneLoader(QNode *parent):QSceneLoader(parent)
 {
 
     //    connect(this,&Qt3DRender::QSceneLoader::statusChanged,this,[&](Qt3DRender::QSceneLoader::Status status){
@@ -53,7 +53,7 @@ void MySceneLoader::mystatusChanged(QSceneLoader::Status status)
             QString entityname=entitynames[i];
             auto entityvar=entity(entityname);
 
-            addEntity(entityvar);
+
 
         }
 
@@ -65,74 +65,6 @@ void MySceneLoader::mystatusChanged(QSceneLoader::Status status)
 
 
 }
-
-void MySceneLoader::addEntity(QEntity *entity, int index, QEntity *parent)
-{
-    if (entity == nullptr)
-        return;
-
-    if (parent == nullptr) {
-        //make sure that entity has a parent, otherwise make its parent the root entity
-        //        if (entity->parentEntity() == nullptr)
-        //            entity->setParent(m_rootEntity);
-    } else if (entity->parentEntity() != parent) {
-        entity->setParent(parent);
-    }
-
-    SceneItem *item = m_sceneItems.value(entity->id(), nullptr);
-    if (!item) {
-        item = new SceneItem(entity, m_sceneItems.value(entity->parentEntity()->id(),
-                                                        nullptr), index, this);
-
-        //        if (entity == m_sceneEntity)
-        //            m_sceneEntityItem = item;
-
-        m_sceneItems.insert(entity->id(), item);
-        //        connect(entity, &QObject::objectNameChanged,
-        //                this, &EditorScene::handleEntityNameChange);
-
-
-        createObjectPickerForEntity(entity);
-
-
-
-    }
-
-    //    if (item->itemType() != EditorSceneItem::SceneLoader) {
-    foreach (QObject *child, entity->children()) {
-        Qt3DCore::QEntity *childEntity = qobject_cast<Qt3DCore::QEntity *>(child);
-        if (childEntity)
-            addEntity(childEntity);
-    }
-    //    }
-}
-
-
-Qt3DRender::QObjectPicker *MySceneLoader::createObjectPickerForEntity(Qt3DCore::QEntity *entity)
-{
-    Qt3DRender::QObjectPicker *picker = nullptr;
-    SceneItem *item = m_sceneItems.value(entity->id());
-    //    if (item && item->itemType() == SceneItem::SceneLoader) {
-    //        // Scene loaders need multiple pickers. Null picker is returned.
-    //        createSceneLoaderChildPickers(entity, item->internalPickers());
-    //    } else if (!item || item->itemType() != EditorSceneItem::Group) {
-    // Group is not visible by itself (has no mesh), so no picker is needed
-    picker = new Qt3DRender::QObjectPicker(entity);
-    picker->setHoverEnabled(false);
-    picker->setObjectName(QStringLiteral("__internal object picker ") + entity->objectName());
-    entity->addComponent(picker);
-    connect(picker, &Qt3DRender::QObjectPicker::pressed, [](Qt3DRender::QPickEvent *pick){
-        if(pick){
-
-        }
-    });
-    //    }
-
-    return picker;
-}
-
-//        traverseEntity(this->entities());
-
 
 
 

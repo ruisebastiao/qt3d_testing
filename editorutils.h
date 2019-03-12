@@ -49,8 +49,7 @@ class QRenderPass;
 class QSceneLoader;
 }
 
-class EditorSceneItemModel;
-class EditorSceneItem;
+class SceneItem;
 
 class EditorUtils : public QObject
 {
