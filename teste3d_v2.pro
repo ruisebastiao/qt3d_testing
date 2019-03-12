@@ -17,7 +17,8 @@ SOURCES += \
     editorutils.cpp \
     qdummyobjectpicker.cpp \
     mycamera.cpp \
-    mysceneloader.cpp
+    mysceneloader.cpp \
+    sceneitem.cpp
 
 RESOURCES += qml.qrc \
     blender_teste/shaders.qrc \
@@ -39,6 +40,7 @@ HEADERS += \
     editorutils.h \
     qdummyobjectpicker.h \
     mycamera.h \
-    mysceneloader.h
+    mysceneloader.h \
+    sceneitem.h
 
 #include(scene_teste/teste1.pri)

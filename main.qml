@@ -215,7 +215,7 @@ QQC2.ApplicationWindow {
 
 
 
-                SceneLoader{
+                MySceneLoader{
                     id:sceneLoader
                     source: "file:///home/rui/projects/cad/teste.dae"
 
@@ -250,6 +250,8 @@ QQC2.ApplicationWindow {
                 components:[sceneLoader,lm36_scene_Transform]
 
             }
+
+
 
         }
     }
