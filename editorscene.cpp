@@ -29,7 +29,7 @@
 #include "editorutils.h"
 #include "sceneitem.h"
 #include "ontopeffect.h"
-
+#include "editorsceneitemcomponentsmodel.h"
 
 #include "editorviewportitem.h"
 
@@ -190,7 +190,7 @@ void EditorScene::addEntity(Qt3DCore::QEntity *entity, int index, Qt3DCore::QEnt
             createObjectPickerForEntity(entity);
         // Note: Scene loader pickers are created asynchronously after scene is loaded fully
 
-        //        item->componentsModel()->initializeModel();
+        item->componentsModel()->initializeModel();
     }
 
     if (item->itemType() != SceneItem::SceneLoader) {
@@ -360,29 +360,6 @@ void EditorScene::loadFile(QString filepath)
 {
     m_sceneloader->setSource(filepath);
 }
-
-//void EditorScene::setSceneEntity(Qt3DCore::QEntity *newSceneEntity)
-//{
-
-//    if (newSceneEntity) {
-//        clearSingleSelection();
-//        if (!m_freeView)
-//            setFrameGraphCamera(nullptr);
-
-
-//        removeEntity(m_sceneEntity);
-//        m_sceneEntity = newSceneEntity;
-//        addEntity(newSceneEntity);
-
-
-
-
-//    } else {
-
-//    }
-
-
-//}
 
 
 int EditorScene::gridSize() const
@@ -1105,6 +1082,7 @@ void EditorScene::handlePickerPress(Qt3DRender::QPickEvent *event)
                 m_pickedDistance = event->distance();
                 bool select = false;
                 SceneItem *item = m_sceneItems.value(pressedEntity->id(), nullptr);
+//                item->
                 if (item) {
                     select = true;
                 } else if (m_freeView) {

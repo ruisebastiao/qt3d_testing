@@ -14,16 +14,25 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-        main.cpp \
-    editorutils.cpp \
-    qdummyobjectpicker.cpp \
+    main.cpp \
+    editorutils.cpp \    
     mycamera.cpp \
     mysceneloader.cpp \
     sceneitem.cpp \
     editorscene.cpp \
     editorviewportitem.cpp \
     inputcontrols/editorcameracontroller.cpp \
-    materials/ontopeffect.cpp
+    materials/ontopeffect.cpp \
+    components/editorsceneitemlightcomponentsmodel.cpp \
+    components/editorsceneitemmaterialcomponentsmodel.cpp \
+    components/editorsceneitemmeshcomponentsmodel.cpp \
+    components/editorsceneitemtransformcomponentsmodel.cpp \
+    components/lightcomponentproxyitem.cpp \
+    components/materialcomponentproxyitem.cpp \
+    components/meshcomponentproxyitem.cpp \
+    components/qdummyobjectpicker.cpp \
+    components/transformcomponentproxyitem.cpp \
+    editorsceneitemcomponentsmodel.cpp
 
 RESOURCES += qml.qrc \
     blender_teste/shaders.qrc \
@@ -42,15 +51,24 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    editorutils.h \
-    qdummyobjectpicker.h \
+    editorutils.h \    
     mycamera.h \
     mysceneloader.h \
     sceneitem.h \
     editorscene.h \
     editorviewportitem.h \
     inputcontrols/editorcameracontroller.h \
-    materials/ontopeffect.h
+    materials/ontopeffect.h \
+    components/editorsceneitemlightcomponentsmodel.h \
+    components/editorsceneitemmaterialcomponentsmodel.h \
+    components/editorsceneitemmeshcomponentsmodel.h \
+    components/editorsceneitemtransformcomponentsmodel.h \
+    components/lightcomponentproxyitem.h \
+    components/materialcomponentproxyitem.h \
+    components/meshcomponentproxyitem.h \
+    components/qdummyobjectpicker.h \
+    components/transformcomponentproxyitem.h \
+    editorsceneitemcomponentsmodel.h
 
 #include(scene_teste/teste1.pri)
 

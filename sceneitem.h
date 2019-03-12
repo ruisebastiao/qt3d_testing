@@ -1,10 +1,11 @@
 #ifndef SCENEITEM_H
 #define SCENEITEM_H
 
-#include <QMatrix4x4>
-#include <qobject.h>
+#include <QtCore/QObject>
+#include <QtGui/QVector3D>
+#include <QtGui/QMatrix4x4>
 
-
+#include "editorsceneitemmeshcomponentsmodel.h" // For mesh type determination
 
 namespace Qt3DCore {
     class QEntity;
@@ -25,7 +26,7 @@ class SceneItem : public QObject
     Q_OBJECT
     Q_ENUMS(ItemType)
 
-//    Q_PROPERTY(EditorSceneItemComponentsModel* componentsModel READ componentsModel CONSTANT)
+    Q_PROPERTY(EditorSceneItemComponentsModel* componentsModel READ componentsModel CONSTANT)
     Q_PROPERTY(bool showSelectionBox READ isSelectionBoxShowing WRITE setShowSelectionBox NOTIFY showSelectionBoxChanged)
 
 public:
@@ -66,7 +67,9 @@ public:
     bool isSelectionBoxShowing() const;
 
 
+    EditorSceneItemComponentsModel* componentsModel() const;
 
+    EditorScene *scene() const;
 
 
     Q_INVOKABLE bool setCustomProperty(QObject *component, const QString name,
@@ -95,9 +98,10 @@ public slots:
 
 signals:
     void showSelectionBoxChanged(bool enabled);
-
+    void selectionBoxTransformChanged(SceneItem *item);
 
 private:
+    QMatrix4x4 composeSelectionBoxTransform();
 
     void recalculateCustomMeshExtents(Qt3DRender::QGeometryRenderer *mesh,
                                       QVector3D &meshExtents,
@@ -108,10 +112,12 @@ private:
 
     void connectEntityMesh(bool enabled);
 
+    QVector<QVector3D> getSelectionBoxCorners(const QMatrix4x4 &matrix);
 
 
     QMatrix4x4 m_unadjustedSelectionBoxMatrix;
     EditorSceneItemMeshComponentsModel::MeshComponentTypes m_entityMeshType;
+
 
     bool m_useGeometryFunctor;
     ItemType m_itemType;
@@ -120,13 +126,13 @@ private:
 
     SceneItem *m_parentItem; // Not owned
     QList<SceneItem *> m_children;
-
+    EditorSceneItemComponentsModel *m_componentsModel;
     EditorScene *m_scene; // Not owned
 
 
     Qt3DCore::QEntity *m_selectionBox;  // Created, but not owned
     Qt3DCore::QTransform *m_selectionTransform;  // Created, but not owned
-    QMatrix4x4 m_unadjustedSelectionBoxMatrix;
+
     Qt3DCore::QTransform *m_entityTransform; // Not owned
     Qt3DRender::QGeometryRenderer *m_entityMesh; // Not owned
 
@@ -138,7 +144,7 @@ private:
     QVector3D m_unadjustedSelectionBoxExtents;
     QVector3D m_selectionBoxCenter;
 
-    ItemType m_itemType;
+
 
     bool m_canRotate;
     // Internal pickers are for example pickers of hidden scene loader meshes.

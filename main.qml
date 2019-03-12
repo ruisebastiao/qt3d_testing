@@ -259,6 +259,11 @@ QQC2.ApplicationWindow {
     EditorScene{
         id:scene
         viewport:viewport
+
+        onSelectionChanged: {
+            console.log("Selection:"+selection)
+        }
+
         Behavior on activeCamera.upVector {
             Vector3dAnimation{
                 easing: Easing.InOutCubic
@@ -383,15 +388,15 @@ QQC2.ApplicationWindow {
         QQC2.Button{
             width: 100
             height: 50
-            text: "Fit torus"
+            text: "Fit selected"
 
 
             onClicked: {
 
                 var len = mainCamera.viewVector.length();
-                mainCamera.viewCenter=lm36_scene.torusTransform.translation.times(Qt.vector3d(1,1,-1))
-                mainCamera.position=lm36_scene.torusTransform.translation
-                mainCamera.upVector=Qt.vector3d(0,1,0);
+//                mainCamera.viewCenter=lm36_scene.torusTransform.translation.times(Qt.vector3d(1,1,-1))
+//                mainCamera.position=lm36_scene.torusTransform.translation
+//                mainCamera.upVector=Qt.vector3d(0,1,0);
 
                 //            mainCamera.viewAll()
 

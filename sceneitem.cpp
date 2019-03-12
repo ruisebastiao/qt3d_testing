@@ -50,6 +50,7 @@
 
 #include <cfloat>
 
+#include "editorsceneitemcomponentsmodel.h"
 
 
 const QVector3D selectionBoxAdjuster(0.002f, 0.002f, 0.002f);
@@ -58,6 +59,7 @@ SceneItem::SceneItem(EditorScene *scene, Qt3DCore::QEntity *entity, SceneItem *p
     : QObject(parent)
     , m_entity(entity)
     , m_parentItem(parentItem)
+    , m_componentsModel(new EditorSceneItemComponentsModel(this, this))
     , m_scene(scene)
     , m_selectionBox(nullptr)
     , m_selectionTransform(nullptr)
@@ -215,75 +217,75 @@ void SceneItem::setParentItem(SceneItem *parentItem)
 
 void SceneItem::handleMeshChange(Qt3DRender::QGeometryRenderer *newMesh)
 {
-        if (newMesh != m_entityMesh) {
-            if (m_entityMesh && isSelectionBoxShowing())
-                connectEntityMesh(false);
+    if (newMesh != m_entityMesh) {
+        if (m_entityMesh && isSelectionBoxShowing())
+            connectEntityMesh(false);
 
-            SceneItemMeshComponentsModel::MeshComponentTypes newType =
-                    SceneItemMeshComponentsModel::meshType(newMesh);
-            m_entityMeshType = newType;
-            m_entityMesh = newMesh;
+        EditorSceneItemMeshComponentsModel::MeshComponentTypes newType =
+                EditorSceneItemMeshComponentsModel::meshType(newMesh);
+        m_entityMeshType = newType;
+        m_entityMesh = newMesh;
 
-            if (m_entityMesh && isSelectionBoxShowing())
-                connectEntityMesh(true);
+        if (m_entityMesh && isSelectionBoxShowing())
+            connectEntityMesh(true);
 
-            recalculateMeshExtents();
-        }
+        recalculateMeshExtents();
+    }
 }
 
 void SceneItem::recalculateMeshExtents()
 {
-        m_entityMeshCenter = QVector3D();
-        switch (m_entityMeshType) {
-        case SceneItemMeshComponentsModel::Custom: {
-            recalculateCustomMeshExtents(m_entityMesh, m_entityMeshExtents, m_entityMeshCenter);
-            break;
-        }
-        case SceneItemMeshComponentsModel::Cuboid: {
-            Qt3DExtras::QCuboidMesh *mesh =
-                    qobject_cast<Qt3DExtras::QCuboidMesh *>(m_entityMesh);
-            m_entityMeshExtents = QVector3D(mesh->xExtent(), mesh->yExtent(), mesh->zExtent());
-            break;
-        }
-        case SceneItemMeshComponentsModel::Cylinder: {
-            Qt3DExtras::QCylinderMesh *mesh =
-                    qobject_cast<Qt3DExtras::QCylinderMesh *>(m_entityMesh);
-            float diameter = mesh->radius() * 2.0f;
-            m_entityMeshExtents = QVector3D(diameter, mesh->length(), diameter);
-            break;
-        }
-        case SceneItemMeshComponentsModel::Plane: {
-            Qt3DExtras::QPlaneMesh *mesh =
-                    qobject_cast<Qt3DExtras::QPlaneMesh *>(m_entityMesh);
-            m_entityMeshExtents = QVector3D(mesh->width(), 0, mesh->height());
-            break;
-        }
-        case SceneItemMeshComponentsModel::Sphere: {
-            Qt3DExtras::QSphereMesh *mesh =
-                    qobject_cast<Qt3DExtras::QSphereMesh *>(m_entityMesh);
-            float diameter = mesh->radius() * 2.0f;
-            m_entityMeshExtents = QVector3D(diameter, diameter, diameter);
-            break;
-        }
-        case SceneItemMeshComponentsModel::Torus: {
-            Qt3DExtras::QTorusMesh *mesh =
-                    qobject_cast<Qt3DExtras::QTorusMesh *>(m_entityMesh);
-            float minorDiameter = mesh->minorRadius() * 2.0f;
-            float diameter = mesh->radius() * 2.0f + minorDiameter;
-            m_entityMeshExtents = QVector3D(diameter, diameter, minorDiameter);
-            break;
-        }
-        case SceneItemMeshComponentsModel::Unknown: {
-            // Unknown means generic mesh
-            recalculateCustomMeshExtents(m_entityMesh, m_entityMeshExtents, m_entityMeshCenter);
-            break;
-        }
-        default:
-            //Unsupported mesh type
-            m_entityMeshExtents = QVector3D(1.0f, 1.0f, 1.0f);
-            break;
-        }
-        updateSelectionBoxTransform();
+    m_entityMeshCenter = QVector3D();
+    switch (m_entityMeshType) {
+    case EditorSceneItemMeshComponentsModel::Custom: {
+        recalculateCustomMeshExtents(m_entityMesh, m_entityMeshExtents, m_entityMeshCenter);
+        break;
+    }
+    case EditorSceneItemMeshComponentsModel::Cuboid: {
+        Qt3DExtras::QCuboidMesh *mesh =
+                qobject_cast<Qt3DExtras::QCuboidMesh *>(m_entityMesh);
+        m_entityMeshExtents = QVector3D(mesh->xExtent(), mesh->yExtent(), mesh->zExtent());
+        break;
+    }
+    case EditorSceneItemMeshComponentsModel::Cylinder: {
+        Qt3DExtras::QCylinderMesh *mesh =
+                qobject_cast<Qt3DExtras::QCylinderMesh *>(m_entityMesh);
+        float diameter = mesh->radius() * 2.0f;
+        m_entityMeshExtents = QVector3D(diameter, mesh->length(), diameter);
+        break;
+    }
+    case EditorSceneItemMeshComponentsModel::Plane: {
+        Qt3DExtras::QPlaneMesh *mesh =
+                qobject_cast<Qt3DExtras::QPlaneMesh *>(m_entityMesh);
+        m_entityMeshExtents = QVector3D(mesh->width(), 0, mesh->height());
+        break;
+    }
+    case EditorSceneItemMeshComponentsModel::Sphere: {
+        Qt3DExtras::QSphereMesh *mesh =
+                qobject_cast<Qt3DExtras::QSphereMesh *>(m_entityMesh);
+        float diameter = mesh->radius() * 2.0f;
+        m_entityMeshExtents = QVector3D(diameter, diameter, diameter);
+        break;
+    }
+    case EditorSceneItemMeshComponentsModel::Torus: {
+        Qt3DExtras::QTorusMesh *mesh =
+                qobject_cast<Qt3DExtras::QTorusMesh *>(m_entityMesh);
+        float minorDiameter = mesh->minorRadius() * 2.0f;
+        float diameter = mesh->radius() * 2.0f + minorDiameter;
+        m_entityMeshExtents = QVector3D(diameter, diameter, minorDiameter);
+        break;
+    }
+    case EditorSceneItemMeshComponentsModel::Unknown: {
+        // Unknown means generic mesh
+        recalculateCustomMeshExtents(m_entityMesh, m_entityMeshExtents, m_entityMeshCenter);
+        break;
+    }
+    default:
+        //Unsupported mesh type
+        m_entityMeshExtents = QVector3D(1.0f, 1.0f, 1.0f);
+        break;
+    }
+    updateSelectionBoxTransform();
 }
 
 void SceneItem::recalculateCustomMeshExtents(Qt3DRender::QGeometryRenderer *mesh,
@@ -292,136 +294,136 @@ void SceneItem::recalculateCustomMeshExtents(Qt3DRender::QGeometryRenderer *mesh
 {
     // For custom meshes we need to calculate the extents from geometry
     Qt3DRender::QGeometry *meshGeometry = mesh->geometry();
-    //    if (!meshGeometry || m_useGeometryFunctor) {
-    //        Qt3DRender::QGeometryFactoryPtr geometryFunctorPtr = mesh->geometryFactory();
-    //        if (geometryFunctorPtr.data()) {
-    //            // Execute the geometry functor to get the geometry, since its not normally available
-    //            // on the application side.
-    //            meshGeometry = geometryFunctorPtr.data()->operator()();
-    //            // Use geometry functor also in future for this item go get the geometry, if the mesh
-    //            // needs to be recalculated. Otherwise we are likely to get obsolete geometry.
-    //            m_useGeometryFunctor = true;
-    //        }
-    //    }
+    if (!meshGeometry || m_useGeometryFunctor) {
+        Qt3DRender::QGeometryFactoryPtr geometryFunctorPtr = mesh->geometryFactory();
+        if (geometryFunctorPtr.data()) {
+            // Execute the geometry functor to get the geometry, since its not normally available
+            // on the application side.
+            meshGeometry = geometryFunctorPtr.data()->operator()();
+            // Use geometry functor also in future for this item go get the geometry, if the mesh
+            // needs to be recalculated. Otherwise we are likely to get obsolete geometry.
+            m_useGeometryFunctor = true;
+        }
+    }
 
-    //    if (meshGeometry) {
-    //        // Set default in case we can't determine the geometry: normalized mesh in range [-1,1]
-    //        meshExtents = QVector3D(2.0f, 2.0f, 2.0f);
-    //        meshCenter =  QVector3D();
+    if (meshGeometry) {
+        // Set default in case we can't determine the geometry: normalized mesh in range [-1,1]
+        meshExtents = QVector3D(2.0f, 2.0f, 2.0f);
+        meshCenter =  QVector3D();
 
-    //        Qt3DRender::QAttribute *vPosAttribute = nullptr;
-    //        Q_FOREACH (Qt3DRender::QAttribute *attribute, meshGeometry->attributes()) {
-    //            if (attribute->name() == Qt3DRender::QAttribute::defaultPositionAttributeName()) {
-    //                vPosAttribute = attribute;
-    //                break;
-    //            }
-    //        }
-    //        if (vPosAttribute) {
-    //            const float *bufferPtr =
-    //                    reinterpret_cast<const float *>(vPosAttribute->buffer()->data().constData());
-    //            uint stride = vPosAttribute->byteStride() / sizeof(float);
-    //            uint offset = vPosAttribute->byteOffset() / sizeof(float);
-    //            bufferPtr += offset;
-    //            uint vertexCount = vPosAttribute->count();
-    //            uint dataCount = vPosAttribute->buffer()->data().size() / sizeof(float);
+        Qt3DRender::QAttribute *vPosAttribute = nullptr;
+        Q_FOREACH (Qt3DRender::QAttribute *attribute, meshGeometry->attributes()) {
+            if (attribute->name() == Qt3DRender::QAttribute::defaultPositionAttributeName()) {
+                vPosAttribute = attribute;
+                break;
+            }
+        }
+        if (vPosAttribute) {
+            const float *bufferPtr =
+                    reinterpret_cast<const float *>(vPosAttribute->buffer()->data().constData());
+            uint stride = vPosAttribute->byteStride() / sizeof(float);
+            uint offset = vPosAttribute->byteOffset() / sizeof(float);
+            bufferPtr += offset;
+            uint vertexCount = vPosAttribute->count();
+            uint dataCount = vPosAttribute->buffer()->data().size() / sizeof(float);
 
-    //            // Make sure we have valid data
-    //            if (((vertexCount * stride) + offset) > dataCount)
-    //                return;
+            // Make sure we have valid data
+            if (((vertexCount * stride) + offset) > dataCount)
+                return;
 
-    //            float minX = FLT_MAX;
-    //            float minY = FLT_MAX;
-    //            float minZ = FLT_MAX;
-    //            float maxX = -FLT_MAX;
-    //            float maxY = -FLT_MAX;
-    //            float maxZ = -FLT_MAX;
+            float minX = FLT_MAX;
+            float minY = FLT_MAX;
+            float minZ = FLT_MAX;
+            float maxX = -FLT_MAX;
+            float maxY = -FLT_MAX;
+            float maxZ = -FLT_MAX;
 
-    //            if (stride)
-    //                stride = stride - 3; // Three floats per vertex
-    //            for (uint i = 0; i < vertexCount; i++) {
-    //                float xVal = *bufferPtr++;
-    //                minX = qMin(xVal, minX);
-    //                maxX = qMax(xVal, maxX);
-    //                float yVal = *bufferPtr++;
-    //                minY = qMin(yVal, minY);
-    //                maxY = qMax(yVal, maxY);
-    //                float zVal = *bufferPtr++;
-    //                minZ = qMin(zVal, minZ);
-    //                maxZ = qMax(zVal, maxZ);
-    //                bufferPtr += stride;
-    //            }
-    //            meshExtents = QVector3D(maxX - minX, maxY - minY, maxZ - minZ);
-    //            meshCenter = QVector3D(minX + meshExtents.x() / 2.0f,
-    //                                   minY + meshExtents.y() / 2.0f,
-    //                                   minZ + meshExtents.z() / 2.0f);
-    //        }
-    //    } else {
-    //        meshExtents = QVector3D();
-    //        meshCenter =  QVector3D();
-    //    }
+            if (stride)
+                stride = stride - 3; // Three floats per vertex
+            for (uint i = 0; i < vertexCount; i++) {
+                float xVal = *bufferPtr++;
+                minX = qMin(xVal, minX);
+                maxX = qMax(xVal, maxX);
+                float yVal = *bufferPtr++;
+                minY = qMin(yVal, minY);
+                maxY = qMax(yVal, maxY);
+                float zVal = *bufferPtr++;
+                minZ = qMin(zVal, minZ);
+                maxZ = qMax(zVal, maxZ);
+                bufferPtr += stride;
+            }
+            meshExtents = QVector3D(maxX - minX, maxY - minY, maxZ - minZ);
+            meshCenter = QVector3D(minX + meshExtents.x() / 2.0f,
+                                   minY + meshExtents.y() / 2.0f,
+                                   minZ + meshExtents.z() / 2.0f);
+        }
+    } else {
+        meshExtents = QVector3D();
+        meshCenter =  QVector3D();
+    }
 }
 
 void SceneItem::recalculateSubMeshesExtents()
 {
-    //    QVector<QVector3D> subMeshPoints;
-    //    m_entityMeshType = SceneItemMeshComponentsModel::SubMeshes;
+    QVector<QVector3D> subMeshPoints;
+    m_entityMeshType = EditorSceneItemMeshComponentsModel::SubMeshes;
 
-    //    populateSubMeshData(m_entity, subMeshPoints);
+    populateSubMeshData(m_entity, subMeshPoints);
 
-    //    if (subMeshPoints.size()) {
-    //        // Calculate complete extents from submesh data
-    //        float minX = FLT_MAX;
-    //        float minY = FLT_MAX;
-    //        float minZ = FLT_MAX;
-    //        float maxX = -FLT_MAX;
-    //        float maxY = -FLT_MAX;
-    //        float maxZ = -FLT_MAX;
-    //        Q_FOREACH (QVector3D points, subMeshPoints) {
-    //            minX = qMin(points.x(), minX);
-    //            maxX = qMax(points.x(), maxX);
-    //            minY = qMin(points.y(), minY);
-    //            maxY = qMax(points.y(), maxY);
-    //            minZ = qMin(points.z(), minZ);
-    //            maxZ = qMax(points.z(), maxZ);
-    //        }
+    if (subMeshPoints.size()) {
+        // Calculate complete extents from submesh data
+        float minX = FLT_MAX;
+        float minY = FLT_MAX;
+        float minZ = FLT_MAX;
+        float maxX = -FLT_MAX;
+        float maxY = -FLT_MAX;
+        float maxZ = -FLT_MAX;
+        Q_FOREACH (QVector3D points, subMeshPoints) {
+            minX = qMin(points.x(), minX);
+            maxX = qMax(points.x(), maxX);
+            minY = qMin(points.y(), minY);
+            maxY = qMax(points.y(), maxY);
+            minZ = qMin(points.z(), minZ);
+            maxZ = qMax(points.z(), maxZ);
+        }
 
-    //        m_entityMeshExtents = QVector3D(maxX - minX, maxY - minY, maxZ - minZ);
-    //        m_entityMeshCenter = QVector3D(minX + m_entityMeshExtents.x() / 2.0f,
-    //                                       minY + m_entityMeshExtents.y() / 2.0f,
-    //                                       minZ + m_entityMeshExtents.z() / 2.0f);
-    //    }
-    //    updateSelectionBoxTransform();
+        m_entityMeshExtents = QVector3D(maxX - minX, maxY - minY, maxZ - minZ);
+        m_entityMeshCenter = QVector3D(minX + m_entityMeshExtents.x() / 2.0f,
+                                       minY + m_entityMeshExtents.y() / 2.0f,
+                                       minZ + m_entityMeshExtents.z() / 2.0f);
+    }
+    updateSelectionBoxTransform();
 }
 
 void SceneItem::populateSubMeshData(Qt3DCore::QEntity *entity,
                                     QVector<QVector3D> &subMeshPoints)
 {
-    //    Qt3DRender::QGeometryRenderer *mesh = EditorUtils::entityMesh(entity);
-    //    if (mesh) {
-    //        QVector3D meshExtents;
-    //        QVector3D meshCenter;
-    //        recalculateCustomMeshExtents(mesh, meshExtents, meshCenter);
-    //        Qt3DCore::QTransform *transform = EditorUtils::entityTransform(entity);
-    //        if (transform) {
-    //            // We are only interested on internal transforms when determining the extents
-    //            QMatrix4x4 totalTransform;
-    //            QList<Qt3DCore::QTransform *> transforms =
-    //                    EditorUtils::ancestralTransforms(entity, m_entity);
-    //            for (int i = transforms.size() - 1; i >= 0; i--)
-    //                totalTransform *= transforms.at(i)->matrix();
-    //            totalTransform *= transform->matrix();
-    //            // Apply transform to two opposite extent box corners to find actual geometry points
-    //            QVector3D halfExtents = meshExtents / 2.0f;
-    //            subMeshPoints.append(totalTransform.map(meshCenter + halfExtents));
-    //            subMeshPoints.append(totalTransform.map(meshCenter - halfExtents));
-    //        }
-    //    }
+    Qt3DRender::QGeometryRenderer *mesh = EditorUtils::entityMesh(entity);
+    if (mesh) {
+        QVector3D meshExtents;
+        QVector3D meshCenter;
+        recalculateCustomMeshExtents(mesh, meshExtents, meshCenter);
+        Qt3DCore::QTransform *transform = EditorUtils::entityTransform(entity);
+        if (transform) {
+            // We are only interested on internal transforms when determining the extents
+            QMatrix4x4 totalTransform;
+            QList<Qt3DCore::QTransform *> transforms =
+                    EditorUtils::ancestralTransforms(entity, m_entity);
+            for (int i = transforms.size() - 1; i >= 0; i--)
+                totalTransform *= transforms.at(i)->matrix();
+            totalTransform *= transform->matrix();
+            // Apply transform to two opposite extent box corners to find actual geometry points
+            QVector3D halfExtents = meshExtents / 2.0f;
+            subMeshPoints.append(totalTransform.map(meshCenter + halfExtents));
+            subMeshPoints.append(totalTransform.map(meshCenter - halfExtents));
+        }
+    }
 
-    //    Q_FOREACH (QObject *child, entity->children()) {
-    //        Qt3DCore::QEntity *childEntity = qobject_cast<Qt3DCore::QEntity *>(child);
-    //        if (childEntity)
-    //            populateSubMeshData(childEntity, subMeshPoints);
-    //    }
+    Q_FOREACH (QObject *child, entity->children()) {
+        Qt3DCore::QEntity *childEntity = qobject_cast<Qt3DCore::QEntity *>(child);
+        if (childEntity)
+            populateSubMeshData(childEntity, subMeshPoints);
+    }
 }
 
 //void SceneItem::updateChildLightTransforms()
@@ -435,200 +437,228 @@ void SceneItem::populateSubMeshData(Qt3DCore::QEntity *entity,
 
 void SceneItem::updateGroupExtents()
 {
-    //    if (m_itemType == SceneItem::Group) {
-    //        QVector3D min(FLT_MAX, FLT_MAX, FLT_MAX);
-    //        QVector3D max(-FLT_MAX, -FLT_MAX, -FLT_MAX);
-    //        QMatrix4x4 matrix;
+    if (m_itemType == SceneItem::Group) {
+        QVector3D min(FLT_MAX, FLT_MAX, FLT_MAX);
+        QVector3D max(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+        QMatrix4x4 matrix;
 
-    //        // Go through all children and map their selection box extents to group coordinates
-    //        if (childItems().size()) {
-    //            Q_FOREACH (SceneItem *child, childItems())
-    //                child->findTotalExtents(min, max, matrix);
+        // Go through all children and map their selection box extents to group coordinates
+        if (childItems().size()) {
+            Q_FOREACH (SceneItem *child, childItems())
+                child->findTotalExtents(min, max, matrix);
 
-    //            m_entityMeshExtents = QVector3D(max.x() - min.x(),
-    //                                            max.y() - min.y(),
-    //                                            max.z() - min.z());
-    //            m_entityMeshCenter = QVector3D(min.x() + m_entityMeshExtents.x() / 2.0f,
-    //                                           min.y() + m_entityMeshExtents.y() / 2.0f,
-    //                                           min.z() + m_entityMeshExtents.z() / 2.0f);
-    //        }
+            m_entityMeshExtents = QVector3D(max.x() - min.x(),
+                                            max.y() - min.y(),
+                                            max.z() - min.z());
+            m_entityMeshCenter = QVector3D(min.x() + m_entityMeshExtents.x() / 2.0f,
+                                           min.y() + m_entityMeshExtents.y() / 2.0f,
+                                           min.z() + m_entityMeshExtents.z() / 2.0f);
+        }
 
-    //        // Finally update the group's selection box
-    //        doUpdateSelectionBoxTransform();
-    //    }
+        // Finally update the group's selection box
+        doUpdateSelectionBoxTransform();
+    }
+}
+
+QMatrix4x4 SceneItem::composeSelectionBoxTransform()
+{
+    QMatrix4x4 totalTransform;
+
+
+
+    totalTransform = EditorUtils::totalAncestralTransform(m_entity);
+    if (m_entityTransform)
+        totalTransform *= m_entityTransform->matrix();
+
+
+    return totalTransform;
 }
 
 void SceneItem::doUpdateSelectionBoxTransform()
 {
     // Transform mesh extents, first scale, then translate
-    //    QMatrix4x4 transformMatrix = composeSelectionBoxTransform();
-    //    transformMatrix.translate(m_entityMeshCenter);
-    //    m_selectionBoxCenter = transformMatrix * QVector3D();
-    //    m_unadjustedSelectionBoxExtents = m_entityMeshExtents;
-    //    m_unadjustedSelectionBoxMatrix = transformMatrix;
-    //    transformMatrix.scale(m_unadjustedSelectionBoxExtents + selectionBoxAdjuster);
+    QMatrix4x4 transformMatrix = composeSelectionBoxTransform();
+    transformMatrix.translate(m_entityMeshCenter);
+    m_selectionBoxCenter = transformMatrix * QVector3D();
+    m_unadjustedSelectionBoxExtents = m_entityMeshExtents;
+    m_unadjustedSelectionBoxMatrix = transformMatrix;
+    transformMatrix.scale(m_unadjustedSelectionBoxExtents + selectionBoxAdjuster);
 
-    //    QVector3D ancestralScale = EditorUtils::totalAncestralScale(m_entity);
-    //    m_unadjustedSelectionBoxExtents *= ancestralScale;
-    //    if (m_entityTransform)
-    //        m_unadjustedSelectionBoxExtents *= m_entityTransform->scale3D();
+    QVector3D ancestralScale = EditorUtils::totalAncestralScale(m_entity);
+    m_unadjustedSelectionBoxExtents *= ancestralScale;
+    if (m_entityTransform)
+        m_unadjustedSelectionBoxExtents *= m_entityTransform->scale3D();
 
-    //    m_selectionTransform->setMatrix(transformMatrix);
+    m_selectionTransform->setMatrix(transformMatrix);
 
-    //    // Check if we have lights as children and update their visible translations, as they are
-    //    // not part of the normal scene.
-    //    updateChildLightTransforms();
+    // Check if we have lights as children and update their visible translations, as they are
+    // not part of the normal scene.
+    //        updateChildLightTransforms();
 
-    //    emit selectionBoxTransformChanged(this);
+    emit selectionBoxTransformChanged(this);
 }
 
 void SceneItem::findTotalExtents(QVector3D &min, QVector3D &max, const QMatrix4x4 &matrix)
 {
-    //    QMatrix4x4 newMatrix = matrix;
-    //    doUpdateSelectionBoxTransform();
-    //    if (m_entityTransform)
-    //        newMatrix *= m_entityTransform->matrix();
+    QMatrix4x4 newMatrix = matrix;
+    doUpdateSelectionBoxTransform();
+    if (m_entityTransform)
+        newMatrix *= m_entityTransform->matrix();
 
-    //    // Skip groups when finding total extents
-    //    if (m_itemType != SceneItem::Group) {
-    //        QVector<QVector3D> corners = getSelectionBoxCorners(newMatrix);
-    //        Q_FOREACH (QVector3D corner, corners) {
-    //            min.setX(qMin(corner.x(), min.x()));
-    //            min.setY(qMin(corner.y(), min.y()));
-    //            min.setZ(qMin(corner.z(), min.z()));
-    //            max.setX(qMax(corner.x(), max.x()));
-    //            max.setY(qMax(corner.y(), max.y()));
-    //            max.setZ(qMax(corner.z(), max.z()));
-    //        }
-    //    }
+    // Skip groups when finding total extents
+    if (m_itemType != SceneItem::Group) {
+        QVector<QVector3D> corners = getSelectionBoxCorners(newMatrix);
+        Q_FOREACH (QVector3D corner, corners) {
+            min.setX(qMin(corner.x(), min.x()));
+            min.setY(qMin(corner.y(), min.y()));
+            min.setZ(qMin(corner.z(), min.z()));
+            max.setX(qMax(corner.x(), max.x()));
+            max.setY(qMax(corner.y(), max.y()));
+            max.setZ(qMax(corner.z(), max.z()));
+        }
+    }
 
-    //    Q_FOREACH (SceneItem *child, childItems())
-    //        child->findTotalExtents(min, max, newMatrix);
+    Q_FOREACH (SceneItem *child, childItems())
+        child->findTotalExtents(min, max, newMatrix);
 }
+
 
 void SceneItem::connectEntityMesh(bool enabled)
 {
-
+    if (enabled) {
+        switch (m_entityMeshType) {
+        case EditorSceneItemMeshComponentsModel::Custom: {
+            Qt3DRender::QMesh *mesh = qobject_cast<Qt3DRender::QMesh *>(m_entityMesh);
+            connect(mesh, &Qt3DRender::QMesh::sourceChanged,
+                    this, &SceneItem::recalculateMeshExtents);
+            break;
+        }
+        case EditorSceneItemMeshComponentsModel::Cuboid: {
+            Qt3DExtras::QCuboidMesh *mesh =
+                    qobject_cast<Qt3DExtras::QCuboidMesh *>(m_entityMesh);
+            connect(mesh, &Qt3DExtras::QCuboidMesh::xExtentChanged,
+                    this, &SceneItem::recalculateMeshExtents);
+            connect(mesh, &Qt3DExtras::QCuboidMesh::yExtentChanged,
+                    this, &SceneItem::recalculateMeshExtents);
+            connect(mesh, &Qt3DExtras::QCuboidMesh::zExtentChanged,
+                    this, &SceneItem::recalculateMeshExtents);
+            break;
+        }
+        case EditorSceneItemMeshComponentsModel::Cylinder: {
+            Qt3DExtras::QCylinderMesh *mesh =
+                    qobject_cast<Qt3DExtras::QCylinderMesh *>(m_entityMesh);
+            connect(mesh, &Qt3DExtras::QCylinderMesh::radiusChanged,
+                    this, &SceneItem::recalculateMeshExtents);
+            connect(mesh, &Qt3DExtras::QCylinderMesh::lengthChanged,
+                    this, &SceneItem::recalculateMeshExtents);
+            break;
+        }
+        case EditorSceneItemMeshComponentsModel::Plane: {
+            Qt3DExtras::QPlaneMesh *mesh =
+                    qobject_cast<Qt3DExtras::QPlaneMesh *>(m_entityMesh);
+            connect(mesh, &Qt3DExtras::QPlaneMesh::widthChanged,
+                    this, &SceneItem::recalculateMeshExtents);
+            connect(mesh, &Qt3DExtras::QPlaneMesh::heightChanged,
+                    this, &SceneItem::recalculateMeshExtents);
+            break;
+        }
+        case EditorSceneItemMeshComponentsModel::Sphere: {
+            Qt3DExtras::QSphereMesh *mesh =
+                    qobject_cast<Qt3DExtras::QSphereMesh *>(m_entityMesh);
+            connect(mesh, &Qt3DExtras::QSphereMesh::radiusChanged,
+                    this, &SceneItem::recalculateMeshExtents);
+            break;
+        }
+        case EditorSceneItemMeshComponentsModel::Torus: {
+            Qt3DExtras::QTorusMesh *mesh =
+                    qobject_cast<Qt3DExtras::QTorusMesh *>(m_entityMesh);
+            connect(mesh, &Qt3DExtras::QTorusMesh::radiusChanged,
+                    this, &SceneItem::recalculateMeshExtents);
+            connect(mesh, &Qt3DExtras::QTorusMesh::minorRadiusChanged,
+                    this, &SceneItem::recalculateMeshExtents);
+            break;
+        }
+        default:
+            //Unsupported mesh type
+            break;
+        }
+    } else {
+        switch (m_entityMeshType) {
+        case EditorSceneItemMeshComponentsModel::Custom: {
+            Qt3DRender::QMesh *mesh = qobject_cast<Qt3DRender::QMesh *>(m_entityMesh);
+            disconnect(mesh, &Qt3DRender::QMesh::sourceChanged,
+                       this, &SceneItem::recalculateMeshExtents);
+            break;
+        }
+        case EditorSceneItemMeshComponentsModel::Cuboid: {
+            Qt3DExtras::QCuboidMesh *mesh =
+                    qobject_cast<Qt3DExtras::QCuboidMesh *>(m_entityMesh);
+            disconnect(mesh, &Qt3DExtras::QCuboidMesh::xExtentChanged,
+                       this, &SceneItem::recalculateMeshExtents);
+            disconnect(mesh, &Qt3DExtras::QCuboidMesh::yExtentChanged,
+                       this, &SceneItem::recalculateMeshExtents);
+            disconnect(mesh, &Qt3DExtras::QCuboidMesh::zExtentChanged,
+                       this, &SceneItem::recalculateMeshExtents);
+            break;
+        }
+        case EditorSceneItemMeshComponentsModel::Cylinder: {
+            Qt3DExtras::QCylinderMesh *mesh =
+                    qobject_cast<Qt3DExtras::QCylinderMesh *>(m_entityMesh);
+            disconnect(mesh, &Qt3DExtras::QCylinderMesh::radiusChanged,
+                       this, &SceneItem::recalculateMeshExtents);
+            disconnect(mesh, &Qt3DExtras::QCylinderMesh::lengthChanged,
+                       this, &SceneItem::recalculateMeshExtents);
+            break;
+        }
+        case EditorSceneItemMeshComponentsModel::Plane: {
+            Qt3DExtras::QPlaneMesh *mesh =
+                    qobject_cast<Qt3DExtras::QPlaneMesh *>(m_entityMesh);
+            disconnect(mesh, &Qt3DExtras::QPlaneMesh::widthChanged,
+                       this, &SceneItem::recalculateMeshExtents);
+            disconnect(mesh, &Qt3DExtras::QPlaneMesh::heightChanged,
+                       this, &SceneItem::recalculateMeshExtents);
+            break;
+        }
+        case EditorSceneItemMeshComponentsModel::Sphere: {
+            Qt3DExtras::QSphereMesh *mesh =
+                    qobject_cast<Qt3DExtras::QSphereMesh *>(m_entityMesh);
+            disconnect(mesh, &Qt3DExtras::QSphereMesh::radiusChanged,
+                       this, &SceneItem::recalculateMeshExtents);
+            break;
+        }
+        case EditorSceneItemMeshComponentsModel::Torus: {
+            Qt3DExtras::QTorusMesh *mesh =
+                    qobject_cast<Qt3DExtras::QTorusMesh *>(m_entityMesh);
+            disconnect(mesh, &Qt3DExtras::QTorusMesh::radiusChanged,
+                       this, &SceneItem::recalculateMeshExtents);
+            disconnect(mesh, &Qt3DExtras::QTorusMesh::minorRadiusChanged,
+                       this, &SceneItem::recalculateMeshExtents);
+            break;
+        }
+        default:
+            //Unsupported mesh type
+            break;
+        }
+    }
 }
 
-//void SceneItem::connectEntityMesh(bool enabled)
-//{
-//    if (enabled) {
-//        switch (m_entityMeshType) {
-//        case SceneItemMeshComponentsModel::Custom: {
-//            Qt3DRender::QMesh *mesh = qobject_cast<Qt3DRender::QMesh *>(m_entityMesh);
-//            connect(mesh, &Qt3DRender::QMesh::sourceChanged,
-//                    this, &SceneItem::recalculateMeshExtents);
-//            break;
-//        }
-//        case SceneItemMeshComponentsModel::Cuboid: {
-//            Qt3DExtras::QCuboidMesh *mesh =
-//                    qobject_cast<Qt3DExtras::QCuboidMesh *>(m_entityMesh);
-//            connect(mesh, &Qt3DExtras::QCuboidMesh::xExtentChanged,
-//                    this, &SceneItem::recalculateMeshExtents);
-//            connect(mesh, &Qt3DExtras::QCuboidMesh::yExtentChanged,
-//                    this, &SceneItem::recalculateMeshExtents);
-//            connect(mesh, &Qt3DExtras::QCuboidMesh::zExtentChanged,
-//                    this, &SceneItem::recalculateMeshExtents);
-//            break;
-//        }
-//        case SceneItemMeshComponentsModel::Cylinder: {
-//            Qt3DExtras::QCylinderMesh *mesh =
-//                    qobject_cast<Qt3DExtras::QCylinderMesh *>(m_entityMesh);
-//            connect(mesh, &Qt3DExtras::QCylinderMesh::radiusChanged,
-//                    this, &SceneItem::recalculateMeshExtents);
-//            connect(mesh, &Qt3DExtras::QCylinderMesh::lengthChanged,
-//                    this, &SceneItem::recalculateMeshExtents);
-//            break;
-//        }
-//        case SceneItemMeshComponentsModel::Plane: {
-//            Qt3DExtras::QPlaneMesh *mesh =
-//                    qobject_cast<Qt3DExtras::QPlaneMesh *>(m_entityMesh);
-//            connect(mesh, &Qt3DExtras::QPlaneMesh::widthChanged,
-//                    this, &SceneItem::recalculateMeshExtents);
-//            connect(mesh, &Qt3DExtras::QPlaneMesh::heightChanged,
-//                    this, &SceneItem::recalculateMeshExtents);
-//            break;
-//        }
-//        case SceneItemMeshComponentsModel::Sphere: {
-//            Qt3DExtras::QSphereMesh *mesh =
-//                    qobject_cast<Qt3DExtras::QSphereMesh *>(m_entityMesh);
-//            connect(mesh, &Qt3DExtras::QSphereMesh::radiusChanged,
-//                    this, &SceneItem::recalculateMeshExtents);
-//            break;
-//        }
-//        case SceneItemMeshComponentsModel::Torus: {
-//            Qt3DExtras::QTorusMesh *mesh =
-//                    qobject_cast<Qt3DExtras::QTorusMesh *>(m_entityMesh);
-//            connect(mesh, &Qt3DExtras::QTorusMesh::radiusChanged,
-//                    this, &SceneItem::recalculateMeshExtents);
-//            connect(mesh, &Qt3DExtras::QTorusMesh::minorRadiusChanged,
-//                    this, &SceneItem::recalculateMeshExtents);
-//            break;
-//        }
-//        default:
-//            //Unsupported mesh type
-//            break;
-//        }
-//    } else {
-//        switch (m_entityMeshType) {
-//        case SceneItemMeshComponentsModel::Custom: {
-//            Qt3DRender::QMesh *mesh = qobject_cast<Qt3DRender::QMesh *>(m_entityMesh);
-//            disconnect(mesh, &Qt3DRender::QMesh::sourceChanged,
-//                       this, &SceneItem::recalculateMeshExtents);
-//            break;
-//        }
-//        case SceneItemMeshComponentsModel::Cuboid: {
-//            Qt3DExtras::QCuboidMesh *mesh =
-//                    qobject_cast<Qt3DExtras::QCuboidMesh *>(m_entityMesh);
-//            disconnect(mesh, &Qt3DExtras::QCuboidMesh::xExtentChanged,
-//                       this, &SceneItem::recalculateMeshExtents);
-//            disconnect(mesh, &Qt3DExtras::QCuboidMesh::yExtentChanged,
-//                       this, &SceneItem::recalculateMeshExtents);
-//            disconnect(mesh, &Qt3DExtras::QCuboidMesh::zExtentChanged,
-//                       this, &SceneItem::recalculateMeshExtents);
-//            break;
-//        }
-//        case SceneItemMeshComponentsModel::Cylinder: {
-//            Qt3DExtras::QCylinderMesh *mesh =
-//                    qobject_cast<Qt3DExtras::QCylinderMesh *>(m_entityMesh);
-//            disconnect(mesh, &Qt3DExtras::QCylinderMesh::radiusChanged,
-//                       this, &SceneItem::recalculateMeshExtents);
-//            disconnect(mesh, &Qt3DExtras::QCylinderMesh::lengthChanged,
-//                       this, &SceneItem::recalculateMeshExtents);
-//            break;
-//        }
-//        case SceneItemMeshComponentsModel::Plane: {
-//            Qt3DExtras::QPlaneMesh *mesh =
-//                    qobject_cast<Qt3DExtras::QPlaneMesh *>(m_entityMesh);
-//            disconnect(mesh, &Qt3DExtras::QPlaneMesh::widthChanged,
-//                       this, &SceneItem::recalculateMeshExtents);
-//            disconnect(mesh, &Qt3DExtras::QPlaneMesh::heightChanged,
-//                       this, &SceneItem::recalculateMeshExtents);
-//            break;
-//        }
-//        case SceneItemMeshComponentsModel::Sphere: {
-//            Qt3DExtras::QSphereMesh *mesh =
-//                    qobject_cast<Qt3DExtras::QSphereMesh *>(m_entityMesh);
-//            disconnect(mesh, &Qt3DExtras::QSphereMesh::radiusChanged,
-//                       this, &SceneItem::recalculateMeshExtents);
-//            break;
-//        }
-//        case SceneItemMeshComponentsModel::Torus: {
-//            Qt3DExtras::QTorusMesh *mesh =
-//                    qobject_cast<Qt3DExtras::QTorusMesh *>(m_entityMesh);
-//            disconnect(mesh, &Qt3DExtras::QTorusMesh::radiusChanged,
-//                       this, &SceneItem::recalculateMeshExtents);
-//            disconnect(mesh, &Qt3DExtras::QTorusMesh::minorRadiusChanged,
-//                       this, &SceneItem::recalculateMeshExtents);
-//            break;
-//        }
-//        default:
-//            //Unsupported mesh type
-//            break;
-//        }
-//    }
-//}
+QVector<QVector3D> SceneItem::getSelectionBoxCorners(const QMatrix4x4 &matrix)
+{
+    QVector<QVector3D> corners(8);
+    const QVector3D &e = (selectionBoxAdjuster + m_entityMeshExtents) / 2.0f;
+    const QVector3D &c = m_entityMeshCenter;
+
+    corners[0] = matrix * (c + QVector3D( e.x(),  e.y(),  e.z()));
+    corners[1] = matrix * (c + QVector3D( e.x(),  e.y(), -e.z()));
+    corners[2] = matrix * (c + QVector3D( e.x(), -e.y(),  e.z()));
+    corners[3] = matrix * (c + QVector3D( e.x(), -e.y(), -e.z()));
+    corners[4] = matrix * (c + QVector3D(-e.x(),  e.y(),  e.z()));
+    corners[5] = matrix * (c + QVector3D(-e.x(),  e.y(), -e.z()));
+    corners[6] = matrix * (c + QVector3D(-e.x(), -e.y(),  e.z()));
+    corners[7] = matrix * (c + QVector3D(-e.x(), -e.y(), -e.z()));
+
+    return corners;
+}
 
 void SceneItem::updateSelectionBoxTransform()
 {
@@ -643,8 +673,8 @@ void SceneItem::updateSelectionBoxTransform()
 void SceneItem::setShowSelectionBox(bool enabled)
 {
     if (m_selectionBox && m_selectionBox->isEnabled() != enabled) {
-//        connectSelectionBoxTransformsRecursive(enabled);
-//        connectEntityMesh(enabled);
+        //        connectSelectionBoxTransformsRecursive(enabled);
+        //        connectEntityMesh(enabled);
         m_selectionBox->setEnabled(enabled);
 
         if (enabled) {
@@ -665,6 +695,16 @@ bool SceneItem::isSelectionBoxShowing() const
         return m_selectionBox->isEnabled();
     else
         return false;
+}
+
+EditorSceneItemComponentsModel *SceneItem::componentsModel() const
+{
+    return m_componentsModel;
+}
+
+EditorScene *SceneItem::scene() const
+{
+    return m_scene;
 }
 
 bool SceneItem::setCustomProperty(QObject *component, const QString name,
