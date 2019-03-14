@@ -173,6 +173,10 @@ void EditorCameraController::handleTriggered(float dt)
     }
 }
 
+void EditorCameraController::updateCamera(float val){
+
+}
+
 void EditorCameraController::handleWheel(QWheelEvent *event)
 {
     if (m_camera) {

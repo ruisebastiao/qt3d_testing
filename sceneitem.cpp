@@ -31,6 +31,7 @@
 #include <Qt3DCore/QEntity>
 #include <Qt3DCore/QTransform>
 #include <Qt3DCore/QComponent>
+#include <Qt3DCore/QJoint>
 #include <Qt3DRender/QCamera>
 #include <Qt3DRender/QMaterial>
 #include <Qt3DRender/QGeometryRenderer>
@@ -47,8 +48,10 @@
 #include <Qt3DRender/QAttribute>
 #include <Qt3DRender/QBuffer>
 #include <Qt3DRender/QSceneLoader>
-
+#include <Qt3DExtras/QPhongMaterial>
+#include <Qt3DExtras/QPhongAlphaMaterial>
 #include <cfloat>
+#include <effects/wireframeeffect.h>
 
 #include "editorsceneitemcomponentsmodel.h"
 
@@ -72,6 +75,14 @@ SceneItem::SceneItem(EditorScene *scene, Qt3DCore::QEntity *entity, SceneItem *p
     if (m_parentItem != nullptr)
         m_parentItem->addChild(this, index);
 
+
+//    m_entityWireFrameMaterial= new Qt3DExtras::QPhongAlphaMaterial();
+
+
+
+//    m_entityWireFrameMaterial->set
+    //joint->
+
     // Selection box
     Qt3DCore::QComponentVector components = entity->components();
     Qt3DRender::QGeometryRenderer *entityMesh = nullptr;
@@ -89,6 +100,9 @@ SceneItem::SceneItem(EditorScene *scene, Qt3DCore::QEntity *entity, SceneItem *p
                 m_canRotate = false;
             }
         }
+        if (!m_entityMaterial)
+            m_entityMaterial= qobject_cast<Qt3DRender::QMaterial*>(component);
+
         if (qobject_cast<Qt3DRender::QSceneLoader *>(component))
             isSceneLoader = true;
     }
@@ -115,7 +129,10 @@ SceneItem::SceneItem(EditorScene *scene, Qt3DCore::QEntity *entity, SceneItem *p
 
     // Show box if entity has transform
     if (m_entityTransform) {
-        m_selectionBox = new Qt3DCore::QEntity(m_scene->rootEntity());
+
+
+        m_selectionBox = new Qt3DCore::QEntity(scene->rootEntity());
+
 
         m_selectionBox->setObjectName(QStringLiteral("__internal selection box"));
 
@@ -203,6 +220,22 @@ void SceneItem::setParentItem(SceneItem *parentItem)
         parentItem->addChild(this);
 
     m_parentItem = parentItem;
+}
+
+void SceneItem::setWireFrame(Qt3DRender::QEffect* effect)
+{
+//    m_entity->removeComponent(m_entityMaterial);
+//    effect->setParent(m_entityMaterial);
+//    m_entityMaterial->setEffect(effect);
+    m_entityMaterial->setEffect(new WireframeEffect());
+//    effect->setParent(m_entityMaterial);
+//    m_entityMaterial->setEffect(effect);
+
+//    Qt3DRender::QMaterial *meshCenterLineMaterial = new Qt3DRender::QMaterial();
+////    meshCenterLineMaterial->setEffect(new WireframeEffect());
+//    meshCenterLineMaterial->setEffect(effect);
+
+//    m_entity->addComponent(meshCenterLineMaterial);
 }
 
 //SceneItemComponentsModel *SceneItem::componentsModel() const

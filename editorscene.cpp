@@ -83,11 +83,9 @@ static const QString cameraVisibleEntityName = QStringLiteral("__internal camera
 static const QString lightVisibleEntityName = QStringLiteral("__internal light visible entity");
 static const QString sceneLoaderSubEntityName = QStringLiteral("__internal sceneloader sub entity");
 static const QString helperArrowName = QStringLiteral("__internal helper arrow");
-static const QVector3D defaultLightDirection(0.0f, -1.0f, 0.0f);
 static const float freeViewCameraNearPlane = 0.1f;
 static const float freeViewCameraFarPlane = 10000.0f;
 static const float freeViewCameraFov = 45.0f;
-static const int dragCornerHandleCount = 8; // One handle for each selection box corner
 static const QColor selectionBoxColor("#43adee");
 static const QColor cameraFrustumColor("#c22555");
 static const QColor helperPlaneColor("#585a5c");
@@ -196,7 +194,7 @@ void EditorScene::addEntity(Qt3DCore::QEntity *entity, int index, Qt3DCore::QEnt
     if (item->itemType() != SceneItem::SceneLoader) {
         foreach (QObject *child, entity->children()) {
             Qt3DCore::QEntity *childEntity = qobject_cast<Qt3DCore::QEntity *>(child);
-            if (childEntity)
+            if (childEntity && childEntity->objectName()!=QStringLiteral("__internal selection box"))
                 addEntity(childEntity);
         }
     }
@@ -665,7 +663,7 @@ void EditorScene::createRootEntity()
     m_rootEntity->addComponent(new Qt3DInput::QInputSettings());
 
     // Scene entity (i.e. the visible root)
-    setSceneEntity();
+  //  setSceneEntity();
 
 
     // Free view camera
@@ -929,6 +927,11 @@ void EditorScene::changeCameraPosition(EditorScene::CameraPosition preset)
     camera->setUpVector(up);
 }
 
+//void EditorScene::setWireframe(SceneItem *item)
+//{
+//    item->setWireFrame();
+//}
+
 
 void EditorScene::updateWorldPositionLabel(const QVector3D &worldPos)
 {
@@ -942,7 +945,7 @@ void EditorScene::addEntityToMultiSelection(const QString &name)
     const int oldSize = m_selectedEntityNameList.size();
     if (oldSize == 0) {
         // Do not add if multiselecting the currently selected entity as the first entity
-        if (m_selectedEntity->objectName() == name)
+        if (!m_selectedEntity || m_selectedEntity->objectName() == name)
             return;
 
         if (m_selectedEntity != m_sceneEntity) {
@@ -1119,19 +1122,25 @@ void EditorScene::loaderstatusChanged(QSceneLoader::Status status)
     if(status==QSceneLoader::Status::Ready){
 
 
-         qDebug()<<"Length:"<<m_sceneloader->entities().length();
-         qDebug()<<"Length:"<<m_sceneloader->entityNames();
+         qDebug()<<"Length:"<<m_sceneloader->entityNames().length();
+         qDebug()<<"entityNames:"<<m_sceneloader->entityNames();
 
-         auto entitynames=m_sceneloader->entityNames();
-         for (int i = 0; i < entitynames.length(); ++i) {
+         qDebug()<<"entities:"<<m_sceneloader->entities()[0];
 
-             QString entityname=entitynames[i];
-             auto entityvar=m_sceneloader->entity(entityname);
-             this->addEntity(entityvar,-1,m_sceneEntity);
+         this->addEntity(m_sceneloader->entities()[0]);
 
 
+//         auto entitynames=m_sceneloader->entityNames();
+//         for (int i = 0; i < entitynames.length(); ++i) {
 
-         }
+//             QString entityname=entitynames[i];
+//             auto entityvar=m_sceneloader->entity(entityname);
+////             this->addEntity(entityvar,-1,m_sceneEntity);
+//             this->addEntity(entityvar);
+
+
+
+//         }
 
 
 
@@ -1248,9 +1257,12 @@ void EditorScene::setSceneEntity(Qt3DCore::QEntity *newSceneEntity)
     m_sceneEntity->setObjectName(m_sceneRootString);
     addEntity(m_sceneEntity);
 
-    m_sceneloader->setParent(newSceneEntity);
+//    m_sceneloader->setParent(m_sceneEntity);
 
-    emit sceneEntityChanged(newSceneEntity);
+    m_sceneEntity->addComponent(m_sceneloader);
+
+
+    emit sceneEntityChanged(m_sceneEntity);
 }
 
 void EditorScene::createSceneLoaderChildPickers(Qt3DCore::QEntity *entity,

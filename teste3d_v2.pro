@@ -32,7 +32,8 @@ SOURCES += \
     components/meshcomponentproxyitem.cpp \
     components/qdummyobjectpicker.cpp \
     components/transformcomponentproxyitem.cpp \
-    editorsceneitemcomponentsmodel.cpp
+    editorsceneitemcomponentsmodel.cpp \
+    effects/wireframeeffect.cpp
 
 RESOURCES += qml.qrc \
     blender_teste/shaders.qrc \
@@ -68,7 +69,8 @@ HEADERS += \
     components/meshcomponentproxyitem.h \
     components/qdummyobjectpicker.h \
     components/transformcomponentproxyitem.h \
-    editorsceneitemcomponentsmodel.h
+    editorsceneitemcomponentsmodel.h \
+    effects/wireframeeffect.h
 
 #include(scene_teste/teste1.pri)
 

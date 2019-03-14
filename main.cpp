@@ -12,6 +12,8 @@
 #include <qsurfaceformat.h>
 #include "mysceneloader.h"
 
+#include <editorcameracontroller.h>
+
 
 
 int main(int argc, char *argv[])
@@ -28,7 +30,7 @@ int main(int argc, char *argv[])
 
     qmlRegisterType<EditorScene>("base", 1, 0, "EditorScene");
     qmlRegisterType<EditorViewportItem>("base", 1, 0, "EditorViewport");
-//    qmlRegisterUncreatableType<EditorSceneItemModel>("base", 1, 0, "EditorSceneItemModel", "Created by EditorScene");
+    qmlRegisterUncreatableType<EditorCameraController>("base", 1, 0, "EditorCameraController", "Created by viewport");
     qmlRegisterUncreatableType<SceneItem>("base", 1, 0, "EditorSceneItem", "Created by EditorScene");
 
     QQmlApplicationEngine engine;

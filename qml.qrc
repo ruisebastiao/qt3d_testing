@@ -5,5 +5,12 @@
         <file>main_copy.qml</file>
         <file>shaders/ontopmaterial.frag</file>
         <file>shaders/ontopmaterial.vert</file>
+        <file>meshes/arrow.obj</file>
+        <file>meshes/camera.obj</file>
+        <file>meshes/defaultmesh.obj</file>
+        <file>meshes/directionallight.obj</file>
+        <file>meshes/spotlight.obj</file>
+        <file>shaders/robustwireframe.vert</file>
+        <file>shaders/robustwireframe.frag</file>
     </qresource>
 </RCC>

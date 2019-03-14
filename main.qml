@@ -1,10 +1,10 @@
 import QtQuick.Controls 2.5 as QQC2
 
-import QtQuick.Scene3D 2.0
-import Qt3D.Core 2.0
-import Qt3D.Render 2.9
-import Qt3D.Input 2.0
-import Qt3D.Extras 2.9
+import QtQuick.Scene3D 2.12
+import Qt3D.Core 2.12
+import Qt3D.Render 2.12
+import Qt3D.Input 2.12
+import Qt3D.Extras 2.12
 
 import QtQuick 2.12
 
@@ -24,237 +24,63 @@ QQC2.ApplicationWindow {
         id:utils
     }
 
-    //    Scene3D {
-    //        id: scene3d
 
-    //        anchors.fill: parent
-    //        anchors.margins: 10
-    //        focus: true
-    //        aspects: ["input", "logic"]
-    //        cameraAspectRatioMode: Scene3D.AutomaticAspectRatio
-    //        hoverEnabled: true
+    Effect {
+        id: effect
 
-    //        Entity {
-    //            id: scene_root
+        parameters: [
+            Parameter { name: "ka";   value: Qt.vector3d( 0.1, 0.1, 0.1 ) },
+            Parameter { name: "kd";   value: Qt.vector3d( 0.7, 0.7, 0.7 ) },
+            Parameter { name: "ks";  value: Qt.vector3d( 0.95, 0.95, 0.95 ) },
+            Parameter { name: "shininess"; value: 150.0 },
+            Parameter { name: "alpha"; value: 0.1}
+        ]
 
+        techniques: [
+            Technique {
+                graphicsApiFilter {
+                    api: GraphicsApiFilter.OpenGL
+                    profile: GraphicsApiFilter.NoProfile
+                    majorVersion: 2
+                    minorVersion: 1
+                }
 
-    //            property real metalness
-    //            property real roughness
-    //            property real exposure:1.5
-    //            property real gamma:1.8
+                filterKeys: [ FilterKey { name: "renderingStyle"; value: "forward" } ]
 
-    //            components: [
-    //                RenderSettings {
-    //                    activeFrameGraph: ForwardRenderer {
-    //                        camera: mainCamera
-    //                        clearColor: "white"
-    //                        //                        gamma: scene.gamma
-    //                    }
-    //                },
-    //                // Event Source will be set by the Qt3DQuickWindow
-    //                InputSettings { }
-    //            ]
+                parameters: [
+                    Parameter { name: "light.position"; value: Qt.vector4d( 0.0, 0.0, 0.0, 1.0 ) },
+                    Parameter { name: "light.intensity"; value: Qt.vector3d( 1.0, 1.0, 1.0 ) },
+                    Parameter { name: "line.width"; value: 1.0 },
+                    Parameter { name: "line.color"; value: Qt.vector4d( 1.0, 1.0, 1.0, 1.0 ) }
+                ]
 
-    //            SOrbitCameraController {
-    //                camera: mainCamera
-    //                linearSpeed: 20
-    //                lookSpeed: 400
-    //            }
+                renderPasses: [
+                    RenderPass {
+                        renderStates: [
+//                            CullFace { mode : CullFace.NoCulling },
+                            AlphaCoverage {}
+//                            MultiSampleAntiAliasing {},
+                            //                                DepthTest { depthFunction: DepthTest.Less },
+                            //                                NoDepthMask { },
+//                            BlendEquationArguments {
+//                                sourceRgb: BlendEquationArguments.SourceAlpha
+//                                destinationRgb: BlendEquationArguments.OneMinusSourceAlpha
+//                            },
+//                            BlendEquation {blendFunction: BlendEquation.Add}
 
-    //            Camera {
-    //                id: mainCamera
-
-
-
-
-    //                // viewCenter: "0,0,0"
-    //                onUpVectorChanged: {
-    //                    console.log("Up vector:"+upVector)
-    //                }
-
-    //                property vector3d baseViewCenter
-    //                property vector3d basePosition
-
-    //                function setBasePosition(){
-    //                    viewCenter=baseViewCenter
-    //                    position=basePosition
-    //                    upVector=Qt.vector3d(0,1,0);
-    //                }
-
-    //                onViewCenterChanged: {
-    //                    console.log("viewCenter:"+viewCenter)
-    //                }
-    //                projectionType: CameraLens.PerspectiveProjection
-
-    //                onPositionChanged: {
-    //                    console.log("Position:"+position)
-    //                }
-
-    //                Behavior on upVector {
-    //                    Vector3dAnimation{
-    //                        easing: Easing.InOutCubic
-    //                        duration: 1000
-    //                    }
-    //                }
+                        ]
+                        shaderProgram: ShaderProgram {
+                            vertexShaderCode:   loadSource("qrc:/shaders/robustwireframe.vert")
+                            //                                geometryShaderCode: loadSource("qrc:/shaders/robustwireframe.geom")
+                            fragmentShaderCode: loadSource("qrc:/shaders/robustwireframe.frag")
+                        }
+                    }
+                ]
+            }
+        ]
+    }
 
 
-
-    //                Behavior on viewCenter {
-    //                    Vector3dAnimation{
-    //                        easing: Easing.InOutCubic
-    //                        duration: 1000
-    //                    }
-    //                }
-
-    //                Behavior on position {
-    //                    Vector3dAnimation{
-    //                        easing: Easing.InOutCubic
-    //                        duration: 1000
-    //                    }
-    //                }
-
-    //                exposure: scene_root.exposure
-    //            }
-    //            Entity {
-    //                components: [
-    //                    DirectionalLight {
-    //                        worldDirection: Qt.vector3d(0, -3.0, 0.0).normalized();
-    //                        color: "white"
-    //                        intensity: 0.5
-    //                    }
-    //                ]
-    //            }
-    //            Entity {
-    //                components: [
-    //                    DirectionalLight {
-    //                        worldDirection: Qt.vector3d(-3, 0, 0.0).normalized();
-    //                        color: "white"
-    //                        intensity: 0.5
-    //                    }
-    //                ]
-    //            }
-
-    //            Entity {
-    //                components: [
-    //                    DirectionalLight {
-    //                        worldDirection: Qt.vector3d(3, 0, 0.0).normalized();
-    //                        color: "white"
-    //                        intensity: 0.5
-    //                    }
-    //                ]
-    //            }
-
-
-    //            Entity {
-    //                id:lm36_scene
-
-
-    //                Transform{
-    //                    id: lm36_scene_Transform
-    //                    Behavior on translation {
-    //                        Vector3dAnimation{
-    //                            duration: 1000
-    //                        }
-    //                    }
-
-    //                    translation: Qt.vector3d(0, 0, 0) //random values, choose your own
-    //                }
-
-    //                property Entity monkey
-    //                onMonkeyChanged: {
-    //                    console.log("monkey entity set")
-    //                    for (var i = 0; i < monkey.components.length; ++i) {
-
-    //                        var cmp=monkey.components[i]
-    //                        if(cmp){
-    //                            var cmp_class=cmp.toString();
-    //                            if(cmp_class.indexOf("Qt3DCore::QTransform")>=0){
-    //                                monkeyTransform=cmp
-    //                            }
-
-    //                        }
-
-
-
-    //                    }
-
-    //                }
-
-    //                property Transform monkeyTransform
-    //                onMonkeyTransformChanged: {
-    //                    console.log("monkeyTransform:"+monkeyTransform.matrix)
-    //                }
-
-
-    //                property Entity torus
-    //                onTorusChanged: {
-    //                    console.log("torus entity set")
-    //                    for (var i = 0; i < torus.components.length; ++i) {
-
-    //                        var cmp=torus.components[i]
-    //                        if(cmp){
-    //                            var cmp_class=cmp.toString();
-    //                            if(cmp_class.indexOf("Qt3DCore::QTransform")>=0){
-    //                                torusTransform=cmp
-    //                            }
-
-    //                        }
-
-
-
-    //                    }
-
-    //                }
-
-    //                property Transform torusTransform
-    //                onTorusTransformChanged: {
-    //                    console.log("qentityTransform:"+torusTransform.translation)
-
-    //                }
-
-
-
-
-    //                MySceneLoader{
-    //                    id:sceneLoader
-    //                    source: "file:///home/rui/projects/cad/teste.dae"
-
-    //                    Timer{
-    //                        id:tm01_getpos
-    //                        interval: 250
-    //                        onTriggered: {
-    //                            mainCamera.basePosition=mainCamera.position
-    //                            mainCamera.baseViewCenter=mainCamera.viewCenter
-    //                        }
-
-    //                        repeat: false
-    //                    }
-
-    //                    onStatusChanged: {
-    //                        console.log("SceneLoader status: " + status);
-    //                        if (status == SceneLoader.Ready) {
-    //                            console.log("Scene is ready");
-
-    //                            mainCamera.viewAll();
-    //                            tm01_getpos.start()
-
-    //                            console.log("entityNames:"+sceneLoader.entityNames());
-
-
-    //                            lm36_scene.monkey=sceneLoader.entity("monkey");
-    //                            lm36_scene.torus=sceneLoader.entity("torus");
-    //                        }
-    //                    }
-    //                }
-
-    //                components:[sceneLoader,lm36_scene_Transform]
-
-    //            }
-
-
-
-    //        }
-    //    }
 
     EditorScene{
         id:scene
@@ -266,7 +92,7 @@ QQC2.ApplicationWindow {
 
 
         onSelectionItemChanged: {
-            console.log("Selection Item:"+selectionItem.selectionBoxCenter())
+            console.log("Selection Item:"+selectionItem.entityTransform().translation)
         }
 
         Behavior on activeCamera.upVector {
@@ -274,6 +100,18 @@ QQC2.ApplicationWindow {
                 easing: Easing.InOutCubic
                 duration: 1000
             }
+        }
+
+        activeCamera.onViewCenterChanged: {
+            console.log("viewCenter:"+activeCamera.viewCenter)
+        }
+
+
+        activeCamera.onPositionChanged: {
+            console.log("Position:"+activeCamera.position)
+        }
+        activeCamera.onUpVectorChanged: {
+            console.log("Up vector:"+activeCamera.upVector)
         }
 
 
@@ -295,7 +133,7 @@ QQC2.ApplicationWindow {
 
         sceneEntity:  Entity {
             id:scene_entity
-
+            objectName: "teste"
             Entity {
                 components: [
                     DirectionalLight {
@@ -305,6 +143,16 @@ QQC2.ApplicationWindow {
                     }
                 ]
             }
+            Entity {
+                components: [
+                    DirectionalLight {
+                        worldDirection: Qt.vector3d(0, 3, 0.0).normalized();
+                        color: "white"
+                        intensity: 0.5
+                    }
+                ]
+            }
+
             Entity {
                 components: [
                     DirectionalLight {
@@ -328,12 +176,24 @@ QQC2.ApplicationWindow {
             Entity {
                 components: [
                     DirectionalLight {
-                        worldDirection: Qt.vector3d(-3, 0, 0.0).normalized();
+                        worldDirection: Qt.vector3d(0, 0, -3).normalized();
                         color: "white"
                         intensity: 0.5
                     }
                 ]
             }
+
+            Entity {
+                components: [
+                    DirectionalLight {
+                        worldDirection: Qt.vector3d(0, 0, 3).normalized();
+                        color: "white"
+                        intensity: 0.5
+                    }
+                ]
+            }
+
+
 
 
 
@@ -348,29 +208,6 @@ QQC2.ApplicationWindow {
 
     }
 
-    //    SceneLoader{
-    //        id:sceneLoader
-    //        source: "file:///home/rui/projects/cad/teste.dae"
-
-    //        onStatusChanged: {
-    //            console.log("SceneLoader status: " + status);
-    //            if (status == SceneLoader.Ready) {
-    //                console.log("Scene is ready");
-
-
-    ////                mainCamera.viewAll();
-    ////                tm01_getpos.start()
-
-    ////                console.log("entityNames:"+sceneLoader.entityNames());
-
-
-    ////                lm36_scene.monkey=sceneLoader.entity("monkey");
-    ////                lm36_scene.torus=sceneLoader.entity("torus");
-    //            }
-    //        }
-    //    }
-
-
     property alias mainCamera: scene.activeCamera
     Flow{
 
@@ -384,11 +221,32 @@ QQC2.ApplicationWindow {
 
             onClicked: {
 
-                scene.loadFile("file:///home/rui/projects/cad/teste.dae")
+                //                scene.loadFile("file:///home/rui/projects/cad/teste.obj")
+                //scene.loadFile("file:///home/rui/projects/cad/teste.dae")
+                //                scene.loadFile("file:///home/rui/projects/cad/bodyplacement_lm36.obj")
+                                scene.loadFile("file:///home/rui/projects/cad/bodyplacement_lm36.dae")
             }
         }
 
 
+        QQC2.Button{
+            width: 100
+            height: 50
+            text: "Wireframe selected"
+
+
+
+            onClicked: {
+
+
+                scene.selectionItem.setWireFrame(effect)
+
+
+
+
+
+            }
+        }
 
         QQC2.Button{
             width: 100
@@ -398,14 +256,68 @@ QQC2.ApplicationWindow {
 
             onClicked: {
 
-                var len = mainCamera.viewVector.length();
-                mainCamera.viewCenter=scene.selectionItem.selectionBoxCenter().times(Qt.vector3d(1,1,-1))
-                mainCamera.position=scene.selectionItem.selectionBoxCenter()
-                mainCamera.upVector=Qt.vector3d(0,1,0);
 
-                //            mainCamera.viewAll()
+                mainCamera.viewCenter=scene.selectionItem.selectionBoxCenter()
+                var oL = Qt.vector3d(0,0,0)
+                var cL = Qt.vector3d(0,0,0)
 
-                //            mainCamera.translate(lm36_scene.torusTransform.translation,Camera.TranslateViewCenter)
+                //var FOV = 45 * (Math.PI / 180); // convert to radians
+
+                var objectLocation = oL = scene.selectionItem.selectionBoxCenter();
+                var cameraLocation = cL = mainCamera.position
+
+
+                //   var distToObject = Math.sqrt(Math.pow(oL.x - cL.x, 2) + Math.pow(oL.y - cL.y, 2) + Math.pow(oL.z - cL.z, 2));
+
+                var entity_extents=scene.selectionItem.entityMeshExtents()
+
+                var objectRadius = entity_extents.x;
+
+
+                // Approx size in pixels you want the object to occupy
+                var requieredObjectPixelSize = 900;
+
+                // camera distance to object
+                var distToObject = Math.sqrt(Math.pow(oL.x - cL.x, 2) + Math.pow(oL.y - cL.y, 2) + Math.pow(oL.z - cL.z, 2));
+
+                // get the object's angular size.
+                var objectAngularSize = Math.atan( (objectRadius) / distToObject ) * 2;
+
+                // get the fraction of the FOV the object must occupy to be 900 pixels
+                // var scaling = requieredObjectPixelSize / displayWidth;
+
+                // get the angular size the object has to be
+                // var objectAngularSize2 = FOV * scaling;
+
+                // use half the angular size to get the distance the camera must be from the object
+                distToObject = objectRadius / Math.tan(objectAngularSize / 2);
+
+
+                // Get the vector from the object to the camera
+                //                var toCam = {
+                //                    x : cL.x - oL.x,
+                //                    y : cL.y - oL.y,
+                //                    z : cL.z - oL.z,
+                //                }
+
+                // Get the vector from the object to the camera
+                var toCam = Qt.vector3d(0,0,0);
+                toCam=cL.minus(oL)
+
+                // First length
+                var len =toCam.length();
+                // Then divide to normalise (you may want to test for divide by zero)
+                toCam=toCam.normalized()
+
+
+                //Now you can scale the vector to make it equal to the distance the camera must be from the object.
+                toCam=toCam.times(distToObject-5)
+
+                cL=cL.minus(toCam)
+
+                mainCamera.position=cL
+
+
             }
         }
 
@@ -417,7 +329,8 @@ QQC2.ApplicationWindow {
 
             onClicked: {
 
-                mainCamera.setBasePosition()
+                //                mainCamera.setBasePosition()
+                mainCamera.viewEntity(scene.sceneEntity)
 
 
             }
@@ -494,6 +407,30 @@ QQC2.ApplicationWindow {
             }
         }
 
+        QQC2.Button{
+            width: 100
+            height: 50
+            text: "Front"
+
+
+
+            onClicked: {
+
+                var cameraDirection=Qt.vector3d(0,0,0);
+                var up=Qt.vector3d(0,1,0);
+
+                cameraDirection.z=1
+
+                // Keep the current distance and viewcenter, but change upvector to properly orient the camera.
+                var len = mainCamera.viewVector.length();
+                mainCamera.position=mainCamera.viewCenter.plus(cameraDirection.times(len));
+                mainCamera.upVector=up
+
+
+
+            }
+        }
+
 
         QQC2.Button{
             width: 100
@@ -518,6 +455,72 @@ QQC2.ApplicationWindow {
 
             }
         }
+
+
+        QQC2.Button{
+            width: 100
+            height: 50
+            text: "Rotate selected"
+
+
+            property double angle: 0
+
+            Behavior on angle {
+                NumberAnimation{
+                    easing: Easing.InOutCubic
+                    duration: 1000
+                }
+            }
+
+            onAngleChanged: {
+
+                ////                selectedTransform.rotation=selectedTransform.fromAxisAndAngle(Qt.vector3d(0, 1, 0), angle)
+                //                //take the existing matrix to not lose any previous transformations
+                //                   var m_target=scene.selectionItem.entityTransform()
+                //                   var m_matrix =Qt.matrix4x4()
+                //                    m_matrix = m_target.matrix;
+                //                    var _rotationOrigin=m_target.translation
+                //                   // Move to the origin point of the rotation, _rotationOrigin would be a member variable
+                //                   m_matrix.translate(_rotationOrigin);
+                //                   // rotate (around the y axis)
+                //                   m_matrix.rotate(angle, Qt.vector3d(0, 1, 0));
+                //                   // translate back
+                //                   m_matrix.translate(-_rotationOrigin);
+                //                 scene.selectionItem.entityTransform().matrix=m_matrix;
+
+
+                selectedTransform.rotation=selectedTransform.fromAxisAndAngle(Qt.vector3d(0, 0, 1), angle)
+            }
+
+            property Transform selectedTransform
+
+            onSelectedTransformChanged: {
+
+
+
+            }
+
+
+            onClicked: {
+
+
+                selectedTransform=scene.selectionItem.entityTransform()
+
+
+                if(angle!=0){
+                    angle=0
+                }
+                else{
+                    angle=360
+                }
+
+
+
+            }
+        }
+
+
+
 
 
     }

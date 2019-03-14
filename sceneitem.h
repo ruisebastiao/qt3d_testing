@@ -5,6 +5,7 @@
 #include <QtGui/QVector3D>
 #include <QtGui/QMatrix4x4>
 
+
 #include "editorsceneitemmeshcomponentsmodel.h" // For mesh type determination
 
 namespace Qt3DCore {
@@ -12,9 +13,16 @@ namespace Qt3DCore {
     class QTransform;
 }
 
+namespace Qt3DExtras {
+    class QPhongAlphaMaterial;
+    class QPhongMaterial;
+
+}
 namespace Qt3DRender {
     class QGeometryRenderer;
     class QObjectPicker;
+    class QMaterial;
+    class QEffect;
 }
 
 
@@ -49,7 +57,7 @@ public:
 
     const QList<SceneItem *> &childItems();
 
-    SceneItem *parentItem();
+    Q_INVOKABLE SceneItem *parentItem();
 
 
      Q_INVOKABLE ItemType itemType() { return m_itemType; }
@@ -61,7 +69,7 @@ public:
 
     void setParentItem(SceneItem *parentItem);
 
-
+    Q_INVOKABLE void setWireFrame(Qt3DRender::QEffect *effect);
 
     void setShowSelectionBox(bool enabled);
     bool isSelectionBoxShowing() const;
@@ -75,11 +83,11 @@ public:
     Q_INVOKABLE bool setCustomProperty(QObject *component, const QString name,
                                        const QVariant &value);
     Q_INVOKABLE QVariant customProperty(QObject *component, const QString name) const;
-    Qt3DCore::QTransform *selectionTransform() const { return m_selectionTransform; }
+    Q_INVOKABLE Qt3DCore::QTransform *selectionTransform() const { return m_selectionTransform; }
     const QMatrix4x4 &unadjustedSelectionBoxMatrix() const { return m_unadjustedSelectionBoxMatrix; }
-    Qt3DCore::QTransform *entityTransform() const { return m_entityTransform; }
+    Q_INVOKABLE Qt3DCore::QTransform *entityTransform() const { return m_entityTransform; }
     QVector3D unadjustedSelectionBoxExtents() const { return m_unadjustedSelectionBoxExtents; }
-    QVector3D entityMeshExtents() const { return m_entityMeshExtents; }
+    Q_INVOKABLE QVector3D entityMeshExtents() const { return m_entityMeshExtents; }
     Q_INVOKABLE QVector3D selectionBoxCenter() const { return m_selectionBoxCenter; }
     QVector3D entityMeshCenter() const { return m_entityMeshCenter; }
 
@@ -134,9 +142,11 @@ private:
     Qt3DCore::QTransform *m_selectionTransform;  // Created, but not owned
 
     Qt3DCore::QTransform *m_entityTransform; // Not owned
+    Qt3DRender::QMaterial *m_entityMaterial=nullptr; // Not owned
+
     Qt3DRender::QGeometryRenderer *m_entityMesh; // Not owned
 
-
+//    Qt3DExtras::QPhongAlphaMaterial *m_entityWireFrameMaterial=nullptr;
 
 
     QVector3D m_entityMeshExtents;

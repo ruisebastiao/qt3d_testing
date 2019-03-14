@@ -169,7 +169,7 @@ public:
 
     Q_INVOKABLE void changeCameraPosition(CameraPosition preset);
 
-
+//    Q_INVOKABLE void setWireframe(SceneItem* item);
 
     void removeEntityFromMultiSelection(const QString &name);
     void addEntityToMultiSelection(const QString &name);

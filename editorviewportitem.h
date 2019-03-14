@@ -59,6 +59,8 @@ class EditorViewportItem : public QQuickFramebufferObject
 {
     Q_OBJECT
     Q_PROPERTY(EditorScene* scene READ scene WRITE setScene NOTIFY sceneChanged)
+    Q_PROPERTY(EditorCameraController* cameraController READ cameraController NOTIFY cameraControllerChanged)
+
     Q_PROPERTY(bool inputEnabled READ inputEnabled WRITE setInputEnabled NOTIFY inputEnabledChanged)
 public:
     EditorViewportItem(QQuickItem *parent = 0);
@@ -70,6 +72,11 @@ public:
     void setInputEnabled(bool enable);
     void handleWindowChanged(QQuickWindow *win);
 
+    EditorCameraController* cameraController() const
+    {
+        return m_cameraController;
+    }
+
 public slots:
     void setScene(EditorScene* scene);
 
@@ -80,6 +87,8 @@ private slots:
 signals:
     void sceneChanged(EditorScene* scene);
     void inputEnabledChanged(bool enabled);
+
+    void cameraControllerChanged(EditorCameraController* cameraController);
 
 protected:
     Renderer *createRenderer() const Q_DECL_OVERRIDE;

@@ -70,13 +70,15 @@ public:
     void handleWheel(QWheelEvent *event);
     void handleMousePress(QMouseEvent *event);
     void handleMouseRelease(QMouseEvent *event);
+    Q_INVOKABLE void adjustCamera(const QVector3D &translateVec);
 
+    void updateCamera(float val);
 private Q_SLOTS:
     void handleTriggered(float dt);
 
 private:
     void init();
-    void adjustCamera(const QVector3D &translateVec);
+
 
     Qt3DRender::QCamera *m_camera;
     Qt3DInput::QAction *m_leftMouseButtonAction;

@@ -298,6 +298,11 @@ Qt3DRender::QGeometryRenderer *EditorUtils::createCameraViewVectorMesh()
     return mesh;
 }
 
+Qt3DRender::QGeometry *EditorUtils::getMeshGeometry(Qt3DCore::QEntity *entity)
+{
+//    entity->
+}
+
 Qt3DRender::QGeometryRenderer *EditorUtils::createCameraViewCenterMesh(float size)
 {
     // TODO: proper mesh
@@ -384,7 +389,7 @@ Qt3DRender::QGeometryRenderer *EditorUtils::createMeshForInsertableType(Insertab
 Qt3DRender::QGeometryRenderer *EditorUtils::createArrowMesh()
 {
     Qt3DRender::QMesh *customMesh = new Qt3DRender::QMesh();
-    customMesh->setSource(QUrl(QStringLiteral("qrc:/qt3deditorlib/meshes/arrow.obj")));
+    customMesh->setSource(QUrl(QStringLiteral("qrc:/meshes/arrow.obj")));
     return customMesh;
 }
 
