@@ -9,20 +9,20 @@
 #include "editorsceneitemmeshcomponentsmodel.h" // For mesh type determination
 
 namespace Qt3DCore {
-    class QEntity;
-    class QTransform;
+class QEntity;
+class QTransform;
 }
 
 namespace Qt3DExtras {
-    class QPhongAlphaMaterial;
-    class QPhongMaterial;
+class QPhongAlphaMaterial;
+class QPhongMaterial;
 
 }
 namespace Qt3DRender {
-    class QGeometryRenderer;
-    class QObjectPicker;
-    class QMaterial;
-    class QEffect;
+class QGeometryRenderer;
+class QObjectPicker;
+class QMaterial;
+class QEffect;
 }
 
 
@@ -36,6 +36,11 @@ class SceneItem : public QObject
 
     Q_PROPERTY(EditorSceneItemComponentsModel* componentsModel READ componentsModel CONSTANT)
     Q_PROPERTY(bool showSelectionBox READ isSelectionBoxShowing WRITE setShowSelectionBox NOTIFY showSelectionBoxChanged)
+    Q_PROPERTY(bool transparent READ transparent WRITE setTransparent NOTIFY transparentChanged)
+    Q_PROPERTY(bool isBase READ isBase WRITE setIsBase NOTIFY isBaseChanged)
+
+
+
 
 public:
 
@@ -60,7 +65,7 @@ public:
     Q_INVOKABLE SceneItem *parentItem();
 
 
-     Q_INVOKABLE ItemType itemType() { return m_itemType; }
+    Q_INVOKABLE ItemType itemType() { return m_itemType; }
 
     int childNumber() const;
 
@@ -69,7 +74,7 @@ public:
 
     void setParentItem(SceneItem *parentItem);
 
-    Q_INVOKABLE void setWireFrame(Qt3DRender::QEffect *effect);
+    //    Q_INVOKABLE void setTransparent();
 
     void setShowSelectionBox(bool enabled);
     bool isSelectionBoxShowing() const;
@@ -99,14 +104,28 @@ public:
     void doUpdateSelectionBoxTransform();
     void updateGroupExtents();
 
+    bool transparent() const;
+
+
+    bool isBase() const;
+
 public slots:
     void updateSelectionBoxTransform();
     void handleMeshChange(Qt3DRender::QGeometryRenderer *newMesh);
     void recalculateMeshExtents();
 
+    void setTransparent(bool transparent);
+
+private:
+    void setIsBase(bool isBase);
+
 signals:
     void showSelectionBoxChanged(bool enabled);
     void selectionBoxTransformChanged(SceneItem *item);
+
+    void transparentChanged(bool transparent);
+
+    void isBaseChanged(bool isBase);
 
 private:
     QMatrix4x4 composeSelectionBoxTransform();
@@ -143,10 +162,12 @@ private:
 
     Qt3DCore::QTransform *m_entityTransform; // Not owned
     Qt3DRender::QMaterial *m_entityMaterial=nullptr; // Not owned
+    Qt3DRender::QEffect* m_entityMaterialEffect=nullptr;
+    Qt3DRender::QEffect* m_entityWireframeEffect=nullptr;
 
     Qt3DRender::QGeometryRenderer *m_entityMesh; // Not owned
 
-//    Qt3DExtras::QPhongAlphaMaterial *m_entityWireFrameMaterial=nullptr;
+    //    Qt3DExtras::QPhongAlphaMaterial *m_entityWireFrameMaterial=nullptr;
 
 
     QVector3D m_entityMeshExtents;
@@ -160,6 +181,8 @@ private:
     // Internal pickers are for example pickers of hidden scene loader meshes.
     // Pickers not owned, but the list itself is.
     QList<Qt3DRender::QObjectPicker *> *m_internalPickers;
+    bool m_transparent=false;
+    bool m_isBase=false;
 };
 
 Q_DECLARE_METATYPE(SceneItem*)

@@ -76,13 +76,7 @@ SceneItem::SceneItem(EditorScene *scene, Qt3DCore::QEntity *entity, SceneItem *p
         m_parentItem->addChild(this, index);
 
 
-//    m_entityWireFrameMaterial= new Qt3DExtras::QPhongAlphaMaterial();
-
-
-
-//    m_entityWireFrameMaterial->set
-    //joint->
-
+    //    qDebug()<<entity->id()<<""
     // Selection box
     Qt3DCore::QComponentVector components = entity->components();
     Qt3DRender::QGeometryRenderer *entityMesh = nullptr;
@@ -118,8 +112,21 @@ SceneItem::SceneItem(EditorScene *scene, Qt3DCore::QEntity *entity, SceneItem *p
         m_itemType = SceneItem::Light;
     else if (isCamera)
         m_itemType = SceneItem::Camera;
-    else if (entityMesh)
+    else if (entityMesh){
         m_itemType = SceneItem::Mesh;
+        QString entityName;
+        entityName=qobject_cast<QObject*>(entity)->objectName();
+        this->setObjectName(entityName);
+
+        if(entityName.contains("__base__")){
+            this->setIsBase(true);
+        }
+
+        //        QTextStream out(&entityName);
+        //        out<<entity;
+        //        this->setObjectName();
+
+    }
     else if (isSceneLoader)
         m_itemType = SceneItem::SceneLoader;
     else if (m_entityTransform)
@@ -130,7 +137,12 @@ SceneItem::SceneItem(EditorScene *scene, Qt3DCore::QEntity *entity, SceneItem *p
     // Show box if entity has transform
     if (m_entityTransform) {
 
+        if ( m_itemType == SceneItem::Mesh){
+            m_entityMaterialEffect= m_entityMaterial->effect();
 
+        }
+
+        m_entityWireframeEffect = new WireframeEffect();
         m_selectionBox = new Qt3DCore::QEntity(scene->rootEntity());
 
 
@@ -222,32 +234,6 @@ void SceneItem::setParentItem(SceneItem *parentItem)
     m_parentItem = parentItem;
 }
 
-void SceneItem::setWireFrame(Qt3DRender::QEffect* effect)
-{
-//    m_entity->removeComponent(m_entityMaterial);
-//    effect->setParent(m_entityMaterial);
-//    m_entityMaterial->setEffect(effect);
-    m_entityMaterial->setEffect(new WireframeEffect());
-//    effect->setParent(m_entityMaterial);
-//    m_entityMaterial->setEffect(effect);
-
-//    Qt3DRender::QMaterial *meshCenterLineMaterial = new Qt3DRender::QMaterial();
-////    meshCenterLineMaterial->setEffect(new WireframeEffect());
-//    meshCenterLineMaterial->setEffect(effect);
-
-//    m_entity->addComponent(meshCenterLineMaterial);
-}
-
-//SceneItemComponentsModel *SceneItem::componentsModel() const
-//{
-//    return m_componentsModel;
-//}
-
-//EditorScene *SceneItem::scene() const
-//{
-//    return m_scene;
-//}
-
 void SceneItem::handleMeshChange(Qt3DRender::QGeometryRenderer *newMesh)
 {
     if (newMesh != m_entityMesh) {
@@ -319,6 +305,59 @@ void SceneItem::recalculateMeshExtents()
         break;
     }
     updateSelectionBoxTransform();
+}
+
+void SceneItem::setTransparent(bool transparent)
+{
+    if (m_transparent == transparent)
+        return;
+
+
+
+    m_transparent = transparent;
+
+    if(m_entityMaterial){
+        if(m_transparent){
+
+            m_entityMaterial->setEffect(m_entityWireframeEffect);
+        }
+        else {
+            m_entityMaterial->setEffect(m_entityMaterialEffect);
+        }
+
+
+    }
+
+    SceneItem* baseParent=this;
+
+    while (baseParent) {
+        baseParent=baseParent->parentItem();
+        if(baseParent && baseParent->isBase()){
+            baseParent->setTransparent(m_transparent);
+            break;
+        }
+    }
+
+
+    //    if(m_isBase){
+    for (int var = 0; var < m_children.length(); ++var) {
+        m_children.at(var)->setTransparent(m_transparent);
+    }
+    //    }
+
+
+
+
+    emit transparentChanged(m_transparent);
+}
+
+void SceneItem::setIsBase(bool isBase)
+{
+    if (m_isBase == isBase)
+        return;
+
+    m_isBase = isBase;
+    emit isBaseChanged(m_isBase);
 }
 
 void SceneItem::recalculateCustomMeshExtents(Qt3DRender::QGeometryRenderer *mesh,
@@ -491,6 +530,16 @@ void SceneItem::updateGroupExtents()
         // Finally update the group's selection box
         doUpdateSelectionBoxTransform();
     }
+}
+
+bool SceneItem::transparent() const
+{
+    return m_transparent;
+}
+
+bool SceneItem::isBase() const
+{
+    return m_isBase;
 }
 
 QMatrix4x4 SceneItem::composeSelectionBoxTransform()

@@ -65,7 +65,7 @@ EditorCameraController::EditorCameraController(EditorViewportItem *viewport,
     , m_panSpeed(360.0f)
     , m_orbitSpeed(600.0f)
     , m_translateSpeed(7.0f)
-    , m_wheelSpeed(-0.05f)
+    , m_wheelSpeed(-0.01f)
     , m_viewport(viewport)
 {
     init();

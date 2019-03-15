@@ -57,16 +57,16 @@ QQC2.ApplicationWindow {
                 renderPasses: [
                     RenderPass {
                         renderStates: [
-//                            CullFace { mode : CullFace.NoCulling },
+                            //                            CullFace { mode : CullFace.NoCulling },
                             AlphaCoverage {}
-//                            MultiSampleAntiAliasing {},
+                            //                            MultiSampleAntiAliasing {},
                             //                                DepthTest { depthFunction: DepthTest.Less },
                             //                                NoDepthMask { },
-//                            BlendEquationArguments {
-//                                sourceRgb: BlendEquationArguments.SourceAlpha
-//                                destinationRgb: BlendEquationArguments.OneMinusSourceAlpha
-//                            },
-//                            BlendEquation {blendFunction: BlendEquation.Add}
+                            //                            BlendEquationArguments {
+                            //                                sourceRgb: BlendEquationArguments.SourceAlpha
+                            //                                destinationRgb: BlendEquationArguments.OneMinusSourceAlpha
+                            //                            },
+                            //                            BlendEquation {blendFunction: BlendEquation.Add}
 
                         ]
                         shaderProgram: ShaderProgram {
@@ -92,7 +92,11 @@ QQC2.ApplicationWindow {
 
 
         onSelectionItemChanged: {
-            console.log("Selection Item:"+selectionItem.entityTransform().translation)
+            if(selectionItem.entityTransform()){
+                console.log("Selection Item:"+selectionItem.entityTransform().translation)
+            }
+
+
         }
 
         Behavior on activeCamera.upVector {
@@ -133,7 +137,7 @@ QQC2.ApplicationWindow {
 
         sceneEntity:  Entity {
             id:scene_entity
-            objectName: "teste"
+            objectName: "scene entity"
             Entity {
                 components: [
                     DirectionalLight {
@@ -148,7 +152,7 @@ QQC2.ApplicationWindow {
                     DirectionalLight {
                         worldDirection: Qt.vector3d(0, 3, 0.0).normalized();
                         color: "white"
-                        intensity: 0.5
+                        intensity:1
                     }
                 ]
             }
@@ -158,7 +162,7 @@ QQC2.ApplicationWindow {
                     DirectionalLight {
                         worldDirection: Qt.vector3d(-3, 0, 0.0).normalized();
                         color: "white"
-                        intensity: 0.5
+                        intensity: 1
                     }
                 ]
             }
@@ -168,7 +172,7 @@ QQC2.ApplicationWindow {
                     DirectionalLight {
                         worldDirection: Qt.vector3d(3, 0, 0.0).normalized();
                         color: "white"
-                        intensity: 0.5
+                        intensity: 1
                     }
                 ]
             }
@@ -178,7 +182,7 @@ QQC2.ApplicationWindow {
                     DirectionalLight {
                         worldDirection: Qt.vector3d(0, 0, -3).normalized();
                         color: "white"
-                        intensity: 0.5
+                        intensity: 1
                     }
                 ]
             }
@@ -188,7 +192,7 @@ QQC2.ApplicationWindow {
                     DirectionalLight {
                         worldDirection: Qt.vector3d(0, 0, 3).normalized();
                         color: "white"
-                        intensity: 0.5
+                        intensity: 1
                     }
                 ]
             }
@@ -222,9 +226,9 @@ QQC2.ApplicationWindow {
             onClicked: {
 
                 //                scene.loadFile("file:///home/rui/projects/cad/teste.obj")
-                //scene.loadFile("file:///home/rui/projects/cad/teste.dae")
+             //   scene.loadFile("file:///home/rui/projects/cad/teste.dae")
                 //                scene.loadFile("file:///home/rui/projects/cad/bodyplacement_lm36.obj")
-                                scene.loadFile("file:///home/rui/projects/cad/bodyplacement_lm36.dae")
+                scene.loadFile("file:///home/rui/projects/cad/bodyplacement_lm36.dae")
             }
         }
 
@@ -239,7 +243,7 @@ QQC2.ApplicationWindow {
             onClicked: {
 
 
-                scene.selectionItem.setWireFrame(effect)
+                scene.allTransparent(scene.selectionItem)
 
 
 
@@ -329,7 +333,7 @@ QQC2.ApplicationWindow {
 
             onClicked: {
 
-                //                mainCamera.setBasePosition()
+
                 mainCamera.viewEntity(scene.sceneEntity)
 
 

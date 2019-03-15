@@ -156,6 +156,7 @@ public:
 
     Q_INVOKABLE QVector3D getWorldPosition(int xPos, int yPos);
 
+    Q_INVOKABLE void allTransparent(SceneItem *skipItem = nullptr);
 
     Q_INVOKABLE void loadFile(QString filepath);
     
@@ -246,8 +247,11 @@ public:
         return m_selectionItem;
     }
 
+
+
 public slots:
     void clearSelectionBoxes(Qt3DCore::QEntity *skipEntity = nullptr);
+
     void setSceneEntity(Qt3DCore::QEntity *newSceneEntity = nullptr);
 
     void setSelectionItem(SceneItem * selectionItem)
@@ -353,7 +357,7 @@ private:
     Qt3DRender::QRenderSettings *m_renderSettings;
     Qt3DExtras::QForwardRenderer *m_renderer;
     Qt3DCore::QEntity *m_sceneEntity;
-    SceneItem *m_sceneEntityItem;
+    SceneItem *m_sceneEntityItem=nullptr;
     Qt3DCore::QEntity *m_selectedEntity;
     Qt3DCore::QTransform *m_selectedEntityTransform;
     QString m_ensureSelectionEntityName;
@@ -391,9 +395,8 @@ private:
 
     Qt3DRender::QSceneLoader* m_sceneloader= new Qt3DRender::QSceneLoader();
 
-
-
-
+    SceneItem *m_baseEntityItem=nullptr;
+    Qt3DCore::QEntity *m_baseEntity=nullptr;
 
     DragMode m_dragMode;
     QPoint m_previousMousePosition;
