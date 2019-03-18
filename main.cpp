@@ -3,6 +3,7 @@
 #include "editorscene.h"
 
 #include "editorviewportitem.h"
+#include "linemesh.h"
 
 
 #include <QtWidgets/QApplication>
@@ -23,10 +24,16 @@ int main(int argc, char *argv[])
 
 
 
+
     qmlRegisterType<EditorUtils>("base", 1, 0, "EditorUtils");
 
 //    qmlRegisterType<MyCamera>("base", 1, 0, "MyCamera");
     qmlRegisterType<MySceneLoader>("base", 1, 0, "MySceneLoader");
+
+
+
+    qmlRegisterType<LineMesh>("base", 1, 0, "LineMesh");
+
 
     qmlRegisterType<EditorScene>("base", 1, 0, "EditorScene");
     qmlRegisterType<EditorViewportItem>("base", 1, 0, "EditorViewport");

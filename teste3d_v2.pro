@@ -33,7 +33,9 @@ SOURCES += \
     components/qdummyobjectpicker.cpp \
     components/transformcomponentproxyitem.cpp \
     editorsceneitemcomponentsmodel.cpp \
-    effects/wireframeeffect.cpp
+    effects/wireframeeffect.cpp \
+    linemeshgeometry.cpp \
+    linemesh.cpp
 
 RESOURCES += qml.qrc \
     blender_teste/shaders.qrc \
@@ -70,7 +72,9 @@ HEADERS += \
     components/qdummyobjectpicker.h \
     components/transformcomponentproxyitem.h \
     editorsceneitemcomponentsmodel.h \
-    effects/wireframeeffect.h
+    effects/wireframeeffect.h \
+    linemeshgeometry.h \
+    linemesh.h
 
 #include(scene_teste/teste1.pri)
 
