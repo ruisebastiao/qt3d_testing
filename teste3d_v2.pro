@@ -35,7 +35,10 @@ SOURCES += \
     editorsceneitemcomponentsmodel.cpp \
     effects/wireframeeffect.cpp \
     linemeshgeometry.cpp \
-    linemesh.cpp
+    linemesh.cpp \
+    infowindow.cpp \
+    infomessagelistmodel.cpp \
+    infomessage.cpp
 
 RESOURCES += qml.qrc \
     blender_teste/shaders.qrc \
@@ -74,7 +77,10 @@ HEADERS += \
     editorsceneitemcomponentsmodel.h \
     effects/wireframeeffect.h \
     linemeshgeometry.h \
-    linemesh.h
+    linemesh.h \
+    infowindow.h \
+    infomessagelistmodel.h \
+    infomessage.h
 
 #include(scene_teste/teste1.pri)
 

@@ -21,35 +21,61 @@
 
 #pragma once
 
+
 #include <QList>
 #include <QObject>
 #include <Qt3DCore/QNode>
 #include <Qt3DRender/QGeometryRenderer>
 #include <QVector4D>
+#include <qquickitem.h>
 
 class LineMeshGeometry;
 class QString;
 class QVector4D;
+class SceneItem;
+class InfoWindow;
 
 class LineMesh : public Qt3DRender::QGeometryRenderer
 {
     Q_OBJECT
+
+    Q_PROPERTY(InfoWindow* targetItem READ targetItem WRITE setTargetItem NOTIFY targetItemChanged)
+
+    Q_PROPERTY(SceneItem* sourceSceneItem READ sourceSceneItem WRITE setSourceSceneItem NOTIFY sourceSceneItemChanged)
+
 public:
     explicit LineMesh(Qt3DCore::QNode *parent = Q_NULLPTR);
     ~LineMesh();
     Q_INVOKABLE void readAndRun(const QString &path);
     void read(const QString &path);
    Q_INVOKABLE void posUpdate(QVariantList poslistvariant);
+   void posUpdate(QList<QVector4D> poslistvariant);
 
 //    Q_INVOKABLE void setFrom2Points();
 
 
+    InfoWindow* targetItem() const;
+
+    SceneItem* sourceSceneItem() const;
+
+public slots:
+    void setTargetItem(InfoWindow *targetItem);
+
+    void setSourceSceneItem(SceneItem* sourceSceneItem);
+
+    void updateLinePosition();
 signals:
     void finished();
     void run(const QString &path);
+
+    void targetItemChanged(InfoWindow* targetItem);
+
+    void sourceSceneItemChanged(SceneItem* sourceSceneItem);
 
 private:
     QList<QVector4D> _vertices;
     LineMeshGeometry *_lineMeshGeo;
 
+    InfoWindow* m_targetItem=nullptr;
+    SceneItem* m_sourceSceneItem =nullptr;
 };

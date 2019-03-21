@@ -57,7 +57,7 @@ EditorCameraController::EditorCameraController(EditorViewportItem *viewport,
     , m_mouseDevice(new Qt3DInput::QMouseDevice())
     , m_logicalDevice(new Qt3DInput::QLogicalDevice())
     , m_frameAction(new Qt3DLogic::QFrameAction())
-    , m_ignoreFirstLeftMousePress(false)
+    , m_ignoreFirstLeftMousePress(true)
     , m_ignoreFirstRightMousePress(false)
     , m_ignoreFirstMiddleMousePress(false)
     , m_adjustCameraAtMouseRelease(false)
@@ -78,9 +78,9 @@ EditorCameraController::~EditorCameraController()
 void EditorCameraController::init()
 {
     // Left Mouse Button Action
-    m_leftMouseButtonInput->setButtons(QVector<int>() << Qt3DInput::QMouseEvent::LeftButton);
-    m_leftMouseButtonInput->setSourceDevice(m_mouseDevice);
-    m_leftMouseButtonAction->addInput(m_leftMouseButtonInput);
+//    m_leftMouseButtonInput->setButtons(QVector<int>() << Qt3DInput::QMouseEvent::LeftButton);
+//    m_leftMouseButtonInput->setSourceDevice(m_mouseDevice);
+//    m_leftMouseButtonAction->addInput(m_leftMouseButtonInput);
 
     // Right Mouse Button Action
     m_rightMouseButtonInput->setButtons(QVector<int>() << Qt3DInput::QMouseEvent::RightButton);
@@ -102,7 +102,7 @@ void EditorCameraController::init()
     m_mouseRyInput->setSourceDevice(m_mouseDevice);
     m_ryAxis->addInput(m_mouseRyInput);
 
-    m_logicalDevice->addAction(m_leftMouseButtonAction);
+//    m_logicalDevice->addAction(m_leftMouseButtonAction);
     m_logicalDevice->addAction(m_rightMouseButtonAction);
     m_logicalDevice->addAction(m_middleMouseButtonAction);
     m_logicalDevice->addAxis(m_rxAxis);
@@ -156,7 +156,7 @@ void EditorCameraController::handleTriggered(float dt)
                 m_ignoreFirstLeftMousePress = false;
             } else {
                 // Pan and tilt the camera with left mouse button
-                m_camera->pan(m_rxAxis->value() * m_panSpeed * dt, m_cameraUp);
+//                m_camera->pan(m_rxAxis->value() * m_panSpeed * dt, m_cameraUp);
                 m_camera->tilt(m_ryAxis->value() * m_panSpeed * dt);
                 m_adjustCameraAtMouseRelease = true;
             }

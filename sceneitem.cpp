@@ -54,6 +54,7 @@
 #include <effects/wireframeeffect.h>
 
 #include "editorsceneitemcomponentsmodel.h"
+#include "linemesh.h"
 
 
 const QVector3D selectionBoxAdjuster(0.002f, 0.002f, 0.002f);
@@ -122,6 +123,27 @@ SceneItem::SceneItem(EditorScene *scene, Qt3DCore::QEntity *entity, SceneItem *p
             this->setIsBase(true);
         }
 
+        m_InfoConnectorEntity= new  Qt3DCore::QEntity();
+        m_InfoConnectorEntity->setObjectName(QStringLiteral("__internal mesh info connector"));
+        Qt3DExtras::QPhongMaterial *infoConnectorMaterial = new Qt3DExtras::QPhongMaterial();
+        infoConnectorMaterial ->setAmbient(QColor("red"));
+        infoConnectorMaterial ->setDiffuse(QColor(Qt::red));
+        infoConnectorMaterial ->setSpecular(QColor(Qt::black));
+        infoConnectorMaterial ->setShininess(0);
+
+        Qt3DCore::QTransform* infoConnectorTransform = new Qt3DCore::QTransform();
+
+        m_linemesh=new LineMesh();
+
+        m_InfoConnectorEntity->addComponent(m_linemesh);
+        m_InfoConnectorEntity->addComponent(infoConnectorMaterial);
+        m_InfoConnectorEntity->addComponent(infoConnectorTransform);
+        m_InfoConnectorEntity->setParent(scene->rootEntity());
+
+        m_InfoConnectorEntity->setEnabled(false);
+
+        m_linemesh->setSourceSceneItem(this);
+
         //        QTextStream out(&entityName);
         //        out<<entity;
         //        this->setObjectName();
@@ -166,6 +188,10 @@ SceneItem::SceneItem(EditorScene *scene, Qt3DCore::QEntity *entity, SceneItem *p
     } else {
         updateSelectionBoxTransform();
     }
+
+
+
+
 }
 
 SceneItem::~SceneItem()
@@ -742,9 +768,14 @@ QVector<QVector3D> SceneItem::getSelectionBoxCorners(const QMatrix4x4 &matrix)
     return corners;
 }
 
+LineMesh *SceneItem::getLinemesh() const
+{
+    return m_linemesh;
+}
+
 void SceneItem::updateSelectionBoxTransform()
 {
-    if (isSelectionBoxShowing())
+//    if (isSelectionBoxShowing())
         doUpdateSelectionBoxTransform();
 
     // Update selection boxes of all child entites, too

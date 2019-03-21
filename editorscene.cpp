@@ -30,6 +30,7 @@
 #include "sceneitem.h"
 #include "ontopeffect.h"
 #include "editorsceneitemcomponentsmodel.h"
+#include "linemesh.h"
 
 #include "editorviewportitem.h"
 
@@ -70,6 +71,8 @@
 #include <QCameraLens>
 #include <cfloat>
 
+
+#include "infowindow.h"
 #include "mysceneloader.h"
 
 //#define TEST_SCENE // If a test scene is wanted instead of the default scene
@@ -139,10 +142,13 @@ EditorScene::EditorScene(QObject *parent)
     // their own stack.
     // TODO: This might need to be done differently if we make this Creator plugin
     qGuiApp->installEventFilter(this);
+
+    //    qRegisterMetaType<Qt3DCore::QTransform*>("Qt3DCore::QTransform*");
 }
 
 EditorScene::~EditorScene()
 {
+    setActiveCamera(nullptr);
     // Remove all entities recursively to ensure the root item is last one to be deleted
     removeEntity(m_sceneEntity);
 
@@ -191,18 +197,28 @@ void EditorScene::addEntity(Qt3DCore::QEntity *entity, int index, Qt3DCore::QEnt
         connect(entity, &QObject::objectNameChanged,
                 this, &EditorScene::handleEntityNameChange);
 
-        if (entity->isEnabled() && item->itemType() != SceneItem::SceneLoader)
-            createObjectPickerForEntity(entity);
+        if (entity->isEnabled() && item->itemType() != SceneItem::SceneLoader){
+            Qt3DRender::QObjectPicker* picker= createObjectPickerForEntity(entity);
+//            picker->
+        }
+
         // Note: Scene loader pickers are created asynchronously after scene is loaded fully
 
         item->componentsModel()->initializeModel();
     }
 
+    for (int var = 0; var < m_infoMessages->length(); ++var) {
+        InfoWindow* infowindow=m_infoMessages->at(var)->infoWindow();
+        if(infowindow->infoMessage() && infowindow->infoMessage()->entityName()==entity->objectName()){
+            item->getLinemesh()->setTargetItem(infowindow);
+            break;
+        }
+    }
 
     if (item->itemType() != SceneItem::SceneLoader) {
         foreach (QObject *child, entity->children()) {
             Qt3DCore::QEntity *childEntity = qobject_cast<Qt3DCore::QEntity *>(child);
-            if (childEntity && childEntity->objectName()!=QStringLiteral("__internal selection box"))
+            if (childEntity && childEntity->objectName().contains(QStringLiteral("__internal"))==false)
                 addEntity(childEntity);
         }
     }
@@ -309,21 +325,73 @@ QVector3D EditorScene::getWorldPosition(int xPos, int yPos)
     QVector3D retVec;
     if (xPos >= 0 && yPos >= 0 && xPos < m_viewport->width() && yPos < m_viewport->height()) {
         QPoint pos(xPos, yPos);
-        Qt3DRender::QCamera *camera = frameGraphCamera();
+        Qt3DRender::QCamera *camera = activeCamera();
         if (camera) {
-            QVector3D planeOrigin;
-            QVector3D planeNormal = helperPlaneNormal();
-            float cosAngle = QVector3D::dotProduct(planeOrigin.normalized(), planeNormal);
-            float planeOffset = planeOrigin.length() * cosAngle;
+            QVector3D planeOrigin_x;
+            QVector3D planeOrigin_y;
+            QVector3D planeOrigin_z;
+
+
+
+
+            Qt3DCore::QTransform* temphelperTransform_y = new Qt3DCore::QTransform();
+            temphelperTransform_y->setScale3D(QVector3D(m_gridSize * 25.0f, m_gridSize * 25.0f, 1.0f));
+            temphelperTransform_y->setRotation(
+                        temphelperTransform_y->fromAxisAndAngle(0.0f, 1.0f, 0.0f, 90.0f));
+
+
+            Qt3DCore::QTransform* temphelperTransform_z= new Qt3DCore::QTransform();
+            temphelperTransform_z->setScale3D(QVector3D(m_gridSize * 25.0f, m_gridSize * 25.0f, 1.0f));
+            temphelperTransform_z->setRotation(temphelperTransform_z->fromAxisAndAngle(0.0f, 0.0f, 1.0f, 90.0f));
+
+            QVector3D planeNormal_x = helperPlaneNormal(m_helperPlaneTransform);
+            QVector3D planeNormal_y = helperPlaneNormal(temphelperTransform_y);
+            QVector3D planeNormal_z = helperPlaneNormal(temphelperTransform_z);
+
+            float cosAngle_x = QVector3D::dotProduct(planeOrigin_x.normalized(), planeNormal_x);
+            float planeOffset_x = planeOrigin_x.length() * cosAngle_x;
 
             QVector3D ray = EditorUtils::unprojectRay(camera->viewMatrix(), camera->projectionMatrix(),
                                                       m_viewport->width(), m_viewport->height(),
                                                       pos);
             float t = 0.0f;
             QVector3D intersection = EditorUtils::findIntersection(camera->position(), ray,
-                                                                   planeOffset, planeNormal, t);
-            if (t > camera->nearPlane())
+                                                                   planeOffset_x, planeNormal_x, t);
+
+            if (t > camera->nearPlane()){
                 retVec = intersection;
+            }
+            else{
+                float cosAngle_y = QVector3D::dotProduct(planeOrigin_y.normalized(), planeNormal_y);
+                float planeOffset_y = planeOrigin_y.length() * cosAngle_y;
+
+                t = 0.0f;
+                intersection = EditorUtils::findIntersection(camera->position(), ray,
+                                                                       planeOffset_y, planeNormal_y, t);
+
+                if (t > camera->nearPlane()){
+                    retVec = intersection;
+                }
+                else{
+                    float cosAngle_z = QVector3D::dotProduct(planeOrigin_z.normalized(), planeNormal_z);
+                    float planeOffset_z = planeOrigin_z.length() * cosAngle_z;
+
+                    t = 0.0f;
+                    intersection = EditorUtils::findIntersection(camera->position(), ray,
+                                                                           planeOffset_z, planeNormal_z, t);
+
+                    if (t > camera->nearPlane()){
+                        retVec = intersection;
+                    }
+                    else{
+
+                    }
+                }
+
+            }
+
+
+
         }
     }
 
@@ -340,7 +408,7 @@ void EditorScene::allTransparent(SceneItem *skipItem)
             if (item!= skipItem)
                 item->setTransparent(true);
             else {
-//                item->setTransparent(false);
+                //                item->setTransparent(false);
             }
         }
     }
@@ -483,6 +551,11 @@ void EditorScene::doEnsureSelection()
         }
     }
     m_ensureSelectionEntityName.clear();
+}
+
+void EditorScene::addNewMessage(QString entityName,QString message)
+{
+    m_infoMessages->addItem(new InfoMessage(entityName,message));
 }
 
 void EditorScene::queueUpdateGroupSelectionBoxes()
@@ -679,7 +752,14 @@ void EditorScene::createRootEntity()
 
     //    m_sceneloader= new QSceneLoader(m_sceneEntity);
 
-    connect(m_sceneloader,&QSceneLoader::statusChanged,this,&EditorScene::loaderstatusChanged);
+    connect(m_sceneloader,&QSceneLoader::statusChanged,this,&EditorScene::loaderstatusChange);
+
+
+
+//    m_InfoConnectorEntity->setEnabled(false);
+
+
+
 
 
 }
@@ -689,6 +769,8 @@ void EditorScene::createHelperPlane()
     m_helperPlane = new Qt3DCore::QEntity();
 
     m_helperPlane->setObjectName(QStringLiteral("__internal helper plane"));
+
+
 
     // Helper plane origin must be at the meeting point of lines, hence the odd lineCount
     Qt3DRender::QGeometryRenderer *planeMesh = EditorUtils::createWireframePlaneMesh(51);
@@ -700,13 +782,24 @@ void EditorScene::createHelperPlane()
     helperPlaneMaterial->setShininess(0);
 
     m_helperPlaneTransform = new Qt3DCore::QTransform();
+
+
+
     m_helperPlaneTransform->setScale3D(QVector3D(m_gridSize * 25.0f, m_gridSize * 25.0f, 1.0f));
     m_helperPlaneTransform->setRotation(
                 m_helperPlaneTransform->fromAxisAndAngle(1.0f, 0.0f, 0.0f, 90.0f));
+
+
     m_helperPlane->addComponent(planeMesh);
     m_helperPlane->addComponent(helperPlaneMaterial);
     m_helperPlane->addComponent(m_helperPlaneTransform);
     m_helperPlane->setParent(m_rootEntity);
+
+
+
+
+
+
 }
 
 void EditorScene::createHelperArrows()
@@ -795,6 +888,7 @@ void EditorScene::setActiveCamera(Qt3DRender::QCamera *activeCamera)
 
 
 
+
 void EditorScene::setSelection(Qt3DCore::QEntity *entity)
 {
     // Setting selection implies end to multiSelection
@@ -808,7 +902,9 @@ void EditorScene::setSelection(Qt3DCore::QEntity *entity)
             m_selectedEntity = entity;
 
             if (m_selectedEntity) {
-                //                connectDragHandles(item, true);
+
+
+
                 if (m_selectedEntity != m_sceneEntity)
                     item->setShowSelectionBox(true);
                 m_selectedEntityTransform = EditorUtils::entityTransform(m_selectedEntity);
@@ -1112,38 +1208,22 @@ void EditorScene::handlePickerPress(Qt3DRender::QPickEvent *event)
     event->setAccepted(true);
 }
 
-void EditorScene::loaderstatusChanged(QSceneLoader::Status status)
+void EditorScene::loaderstatusChange(QSceneLoader::Status status)
 {
     if(status==QSceneLoader::Status::Ready){
 
 
-        qDebug()<<"Length:"<<m_sceneloader->entityNames().length();
-        qDebug()<<"entityNames:"<<m_sceneloader->entityNames();
-
-        qDebug()<<"entities:"<<m_sceneloader->entities()[0];
-
-
         if(m_sceneloader->entityNames().length()>0){
+            qDebug()<<"entityNames:"<<m_sceneloader->entityNames();
+
             m_baseEntity=m_sceneloader->entity(m_sceneloader->entityNames()[0])->parentEntity();
             this->addEntity(m_baseEntity);
         }
 
-        //        auto entitynames=m_sceneloader->entityNames();
-        //        for (int i = 0; i < entitynames.length(); ++i) {
-
-        //            QString entityname=entitynames[i];
-        //            auto entityvar=m_sceneloader->entity(entityname);
-        //            this->addEntity(entityvar);
-
-
-
-        //        }
-
-
-
 
 
     }
+    emit loaderstatusChanged(status);
 }
 
 bool EditorScene::handleMousePress(QMouseEvent *event)
@@ -1184,14 +1264,19 @@ bool EditorScene::handleMouseMove(QMouseEvent *event)
 }
 
 // Find out the normal of the helper plane.
-QVector3D EditorScene::helperPlaneNormal() const
+QVector3D EditorScene::helperPlaneNormal(Qt3DCore::QTransform *planeTransform) const
 {
-    QVector3D helperPlaneNormal = m_helperPlaneTransform->matrix() * QVector3D(0.0f, 0.0f, 1.0f);
+    QVector3D helperPlaneNormal = planeTransform->matrix() * QVector3D(0.0f, 0.0f, 1.0f);
+
     helperPlaneNormal.setX(qAbs(helperPlaneNormal.x()));
     helperPlaneNormal.setY(qAbs(helperPlaneNormal.y()));
     helperPlaneNormal.setZ(qAbs(helperPlaneNormal.z()));
     return helperPlaneNormal.normalized();
 }
+
+
+
+
 
 // Projects vector to a plane defined by active frame graph camera
 QVector3D EditorScene::projectVectorOnCameraPlane(const QVector3D &vector) const
@@ -1257,6 +1342,18 @@ void EditorScene::setSceneEntity(Qt3DCore::QEntity *newSceneEntity)
 
     }
     emit sceneEntityChanged(m_sceneEntity);
+}
+
+void EditorScene::setSelectionItem(SceneItem *selectionItem)
+{
+    if (m_selectionItem == selectionItem)
+        return;
+
+    m_selectionItem = selectionItem;
+
+
+
+    emit selectionItemChanged(m_selectionItem);
 }
 
 void EditorScene::createSceneLoaderChildPickers(Qt3DCore::QEntity *entity,

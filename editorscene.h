@@ -29,7 +29,8 @@
 #define EDITORSCENE_H
 
 #include "editorutils.h"
-
+#include "infomessagelistmodel.h"
+#include "qquickitem.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QMap>
@@ -40,8 +41,11 @@
 #include <QtGui/QQuaternion>
 #include <Qt3DCore/QNodeId>
 #include <Qt3DCore/QEntity>
+#include <Qt3DCore/QTransform>
 #include <QtQml/QJSValue>
 #include <Qt3DRender/QSceneLoader>
+
+class InfoWindow;
 
 namespace Qt3DCore {
     class QTransform;
@@ -99,6 +103,10 @@ class EditorScene : public QObject
     Q_PROPERTY(int gridSize READ gridSize WRITE setGridSize NOTIFY gridSizeChanged)
 
     Q_PROPERTY(Qt3DRender::QCamera* activeCamera READ activeCamera WRITE setActiveCamera NOTIFY activeCameraChanged)
+
+
+    Q_PROPERTY(InfoMessageListModel* infoMessages READ infoMessages WRITE setInfoMessages NOTIFY infoMessagesChanged)
+
 
 public:
     enum DragMode {
@@ -247,20 +255,27 @@ public:
         return m_selectionItem;
     }
 
+    Q_INVOKABLE void addNewMessage(QString entityName,QString message);
 
+    InfoMessageListModel* infoMessages() const
+    {
+        return m_infoMessages;
+    }
 
 public slots:
     void clearSelectionBoxes(Qt3DCore::QEntity *skipEntity = nullptr);
 
     void setSceneEntity(Qt3DCore::QEntity *newSceneEntity = nullptr);
 
-    void setSelectionItem(SceneItem * selectionItem)
+    void setSelectionItem(SceneItem * selectionItem);
+
+    void setInfoMessages(InfoMessageListModel* infoMessages)
     {
-        if (m_selectionItem == selectionItem)
+        if (m_infoMessages == infoMessages)
             return;
 
-        m_selectionItem = selectionItem;
-        emit selectionItemChanged(m_selectionItem);
+        m_infoMessages = infoMessages;
+        emit infoMessagesChanged(m_infoMessages);
     }
 
 signals:
@@ -290,12 +305,16 @@ signals:
 
     void selectionItemChanged(SceneItem * selectionItem);
 
+    void loaderstatusChanged(Qt3DRender::QSceneLoader::Status status);
+
+    void infoMessagesChanged(InfoMessageListModel* infoMessages);
+
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
 
 private slots:
     void handlePickerPress(Qt3DRender::QPickEvent *event);
-    void loaderstatusChanged(Qt3DRender::QSceneLoader::Status status);
+    void loaderstatusChange(Qt3DRender::QSceneLoader::Status status);
 
     void handleViewportSizeChange();
     void handleEntityNameChange();
@@ -312,11 +331,7 @@ private:
     ///
 
 
-
-
-
-
-
+//    QList<InfoWindow*> m_infoWindows;
 
     void retranslateUi();
 
@@ -327,7 +342,7 @@ private:
     bool handleMousePress(QMouseEvent *event);
     bool handleMouseRelease(QMouseEvent *event);
     bool handleMouseMove(QMouseEvent *event);
-    QVector3D helperPlaneNormal() const;
+    QVector3D helperPlaneNormal(Qt3DCore::QTransform *planeTransform) const;
     QVector3D projectVectorOnCameraPlane(const QVector3D &vector) const;
     void resizeConstantScreenSizeEntities();
     bool isPropertyLocked(const QString &propertyName, QObject *obj);
@@ -338,6 +353,10 @@ private:
     void checkMultiSelectionHighlights();
 
     Q_INVOKABLE void doEnsureSelection();
+
+
+
+
     SceneItem *itemByName(const QString &name);
     void clearSingleSelection();
     Q_INVOKABLE void doUpdateGroupSelectionBoxes();
@@ -372,7 +391,10 @@ private:
     EditorViewportItem *m_viewport; // Not owned
 
     Qt3DCore::QEntity *m_helperPlane;
+
+
     Qt3DCore::QTransform *m_helperPlaneTransform;
+
     Qt3DCore::QEntity *m_helperArrows;
     Qt3DCore::QTransform *m_helperArrowsTransform;
     bool m_helperArrowsLocal;
@@ -396,7 +418,13 @@ private:
     Qt3DRender::QSceneLoader* m_sceneloader= new Qt3DRender::QSceneLoader();
 
     SceneItem *m_baseEntityItem=nullptr;
+
     Qt3DCore::QEntity *m_baseEntity=nullptr;
+
+
+
+
+
 
     DragMode m_dragMode;
     QPoint m_previousMousePosition;
@@ -419,8 +447,9 @@ private:
 
     bool m_groupBoxUpdatePending;
 
-    Qt3DRender::QCamera* m_activeCamera;
+    Qt3DRender::QCamera* m_activeCamera=nullptr;
     SceneItem * m_selectionItem;
+    InfoMessageListModel* m_infoMessages=new InfoMessageListModel();
 };
-
+//Q_DECLARE_METATYPE(Qt3DCore::QTransform*);
 #endif // EDITORSCENE_H

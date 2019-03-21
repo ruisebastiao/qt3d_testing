@@ -3,6 +3,7 @@
 #include "editorscene.h"
 
 #include "editorviewportitem.h"
+#include "infowindow.h"
 #include "linemesh.h"
 
 
@@ -26,6 +27,7 @@ int main(int argc, char *argv[])
 
 
     qmlRegisterType<EditorUtils>("base", 1, 0, "EditorUtils");
+    qmlRegisterType<InfoWindow>("base", 1, 0, "InfoWindow");
 
 //    qmlRegisterType<MyCamera>("base", 1, 0, "MyCamera");
     qmlRegisterType<MySceneLoader>("base", 1, 0, "MySceneLoader");
