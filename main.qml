@@ -50,7 +50,7 @@ QQC2.ApplicationWindow {
 
             if(status==SceneLoader.Ready){
                 //                mainCamera.viewAll()
-                mainCamera.viewEntity(scene.sceneEntity)
+                //                mainCamera.viewEntity(scene.sceneEntity)
 
 
                 //                mainCamera.upVector=Qt.vector3d(0,0,-1)
@@ -62,19 +62,19 @@ QQC2.ApplicationWindow {
         }
 
         onSelectionItemChanged: {
-            if(selectionItem.entityTransform()){
-                //                console.log("Selection Item:"+selectionItem.selectionTransform().translation)
-                //                var pos=Qt.vector3d(selectionItem.selectionTransform().translation.x,selectionItem.selectionTransform().translation.y,selectionItem.selectionTransform().translation.z)
-                //                pos.y=pos.y+selectionItem.entityMeshExtents().z
-                //                console.log("Selection Item entityMeshExtents:"+selectionItem.entityMeshExtents())
-                //                arrow_transform.translation=pos
+            //            if(selectionItem.entityTransform()){
+            //                //                console.log("Selection Item:"+selectionItem.selectionTransform().translation)
+            //                //                var pos=Qt.vector3d(selectionItem.selectionTransform().translation.x,selectionItem.selectionTransform().translation.y,selectionItem.selectionTransform().translation.z)
+            //                //                pos.y=pos.y+selectionItem.entityMeshExtents().z
+            //                //                console.log("Selection Item entityMeshExtents:"+selectionItem.entityMeshExtents())
+            //                //                arrow_transform.translation=pos
 
-                //                lineEntity.updateline(selectionItem,info_item)
+            //                //                lineEntity.updateline(selectionItem,info_item)
 
 
-                //                scene.helperPlaneTransform.setRotation(Qt.vector3d(0,0,90))
+            //                //                scene.helperPlaneTransform.setRotation(Qt.vector3d(0,0,90))
 
-            }
+            //            }
 
 
         }
@@ -197,6 +197,7 @@ QQC2.ApplicationWindow {
 
             Flow{
 
+                id:tool_actions
 
 
                 QQC2.Button{
@@ -234,6 +235,82 @@ QQC2.ApplicationWindow {
                     }
                 }
 
+
+                function fitSelected(){
+                    mainCamera.viewCenter=scene.selectionItem.selectionBoxCenter()
+                    var oL = Qt.vector3d(0,0,0)
+                    var cL = Qt.vector3d(0,0,0)
+
+                    //var FOV = 45 * (Math.PI / 180); // convert to radians
+
+                    var objectLocation = oL = scene.selectionItem.selectionBoxCenter();
+                    var cameraLocation = cL = mainCamera.position
+
+
+                    //   var distToObject = Math.sqrt(Math.pow(oL.x - cL.x, 2) + Math.pow(oL.y - cL.y, 2) + Math.pow(oL.z - cL.z, 2));
+
+                    var entity_extents=scene.selectionItem.entityMeshExtents()
+
+                    var max=Math.max(entity_extents.x,entity_extents.y)
+                    var objectRadius = Math.max(max,entity_extents.z)
+
+
+                    // Approx size in pixels you want the object to occupy
+                    var requieredObjectPixelSize = 900;
+
+                    // camera distance to object
+                    var distToObject = Math.sqrt(Math.pow(oL.x - cL.x, 2) + Math.pow(oL.y - cL.y, 2) + Math.pow(oL.z - cL.z, 2));
+
+                    // get the object's angular size.
+                    //                        var objectAngularSize = Math.atan( (objectRadius) / distToObject ) * 2;
+
+                    // get the fraction of the FOV the object must occupy to be 900 pixels
+                    var scaling = requieredObjectPixelSize / viewport.width;
+
+                    // get the angular size the object has to be
+                    var objectAngularSize = mainCamera.fieldOfView* scaling;
+
+                    // use half the angular size to get the distance the camera must be from the object
+                    distToObject = (objectRadius/2) / Math.tan(objectAngularSize / 2)
+
+
+                    // Get the vector from the object to the camera
+                    //                var toCam = {
+                    //                    x : cL.x - oL.x,
+                    //                    y : cL.y - oL.y,
+                    //                    z : cL.z - oL.z,
+                    //                }
+
+                    // Get the vector from the object to the camera
+                    var toCam = Qt.vector3d(0,0,0);
+                    toCam=cL.minus(oL)
+
+                    // First length
+                    var len =toCam.length();
+                    // Then divide to normalise (you may want to test for divide by zero)
+                    toCam=toCam.normalized()
+
+
+                    //Now you can scale the vector to make it equal to the distance the camera must be from the object.
+                    toCam=toCam.times(distToObject)
+
+                    cL=cL.minus(toCam)
+
+                    mainCamera.position=cL
+
+
+
+                    //                         var centerpoint = scene.selectionItem.selectionBoxCenter()
+                    //                         var entity_extents=scene.selectionItem.entityMeshExtents()
+                    //                         var backup = (entity_extents.y / 2) / Math.sin( (mainCamera.fieldOfView/2)*(Math.PI/180) );
+                    //                         var camZpos = entity_extents.z + backup + mainCamera.nearPlane;
+
+                    //                         //move cam
+                    //                         mainCamera.position=Qt.vector3d(centerpoint.x, centerpoint.y, camZpos);
+
+                    //                         mainCamera.farPlane= mainCamera.nearPlane+ 10*entity_extents.z;
+                }
+
                 QQC2.Button{
                     width: 100
                     height: 50
@@ -243,78 +320,8 @@ QQC2.ApplicationWindow {
                     onClicked: {
 
 
-                        mainCamera.viewCenter=scene.selectionItem.selectionBoxCenter()
-                        var oL = Qt.vector3d(0,0,0)
-                        var cL = Qt.vector3d(0,0,0)
 
-                        //var FOV = 45 * (Math.PI / 180); // convert to radians
-
-                        var objectLocation = oL = scene.selectionItem.selectionBoxCenter();
-                        var cameraLocation = cL = mainCamera.position
-
-
-                        //   var distToObject = Math.sqrt(Math.pow(oL.x - cL.x, 2) + Math.pow(oL.y - cL.y, 2) + Math.pow(oL.z - cL.z, 2));
-
-                        var entity_extents=scene.selectionItem.entityMeshExtents()
-
-                        var max=Math.max(entity_extents.x,entity_extents.y)
-                        var objectRadius = Math.max(max,entity_extents.z)
-
-
-                        // Approx size in pixels you want the object to occupy
-                        var requieredObjectPixelSize = 900;
-
-                        // camera distance to object
-                        var distToObject = Math.sqrt(Math.pow(oL.x - cL.x, 2) + Math.pow(oL.y - cL.y, 2) + Math.pow(oL.z - cL.z, 2));
-
-                        // get the object's angular size.
-                        var objectAngularSize = Math.atan( (objectRadius) / distToObject ) * 2;
-
-                        // get the fraction of the FOV the object must occupy to be 900 pixels
-                        // var scaling = requieredObjectPixelSize / displayWidth;
-
-                        // get the angular size the object has to be
-                        // var objectAngularSize2 = FOV * scaling;
-
-                        // use half the angular size to get the distance the camera must be from the object
-                        distToObject = (objectRadius/2) / Math.tan(objectAngularSize / 2)
-
-
-                        // Get the vector from the object to the camera
-                        //                var toCam = {
-                        //                    x : cL.x - oL.x,
-                        //                    y : cL.y - oL.y,
-                        //                    z : cL.z - oL.z,
-                        //                }
-
-                        // Get the vector from the object to the camera
-                        var toCam = Qt.vector3d(0,0,0);
-                        toCam=cL.minus(oL)
-
-                        // First length
-                        var len =toCam.length();
-                        // Then divide to normalise (you may want to test for divide by zero)
-                        toCam=toCam.normalized()
-
-
-                        //Now you can scale the vector to make it equal to the distance the camera must be from the object.
-                        toCam=toCam.times(distToObject-2)
-
-                        cL=cL.minus(toCam)
-
-                        mainCamera.position=cL
-
-
-
-                        //                         var centerpoint = scene.selectionItem.selectionBoxCenter()
-                        //                         var entity_extents=scene.selectionItem.entityMeshExtents()
-                        //                         var backup = (entity_extents.y / 2) / Math.sin( (mainCamera.fieldOfView/2)*(Math.PI/180) );
-                        //                         var camZpos = entity_extents.z + backup + mainCamera.nearPlane;
-
-                        //                         //move cam
-                        //                         mainCamera.position=Qt.vector3d(centerpoint.x, centerpoint.y, camZpos);
-
-                        //                         mainCamera.farPlane= mainCamera.nearPlane+ 10*entity_extents.z;
+                        tool_actions.fitSelected()
 
 
 
@@ -335,6 +342,68 @@ QQC2.ApplicationWindow {
 
                     }
                 }
+
+
+                states: [
+                    State {
+                        name: "0"
+
+                        StateChangeScript {
+                            script:tool_actions.setTopView()
+                        }
+
+                    },
+                    State {
+                        name: "1"
+
+                        StateChangeScript {
+                            script:tool_actions.setLeftView()
+                        }
+
+                    },
+                    State {
+                        name: "2"
+
+                        StateChangeScript {
+                            script:tool_actions.setBackView()
+                        }
+
+                    },
+                    State {
+                        name: "3"
+
+                        StateChangeScript {
+                            script:tool_actions.setRightView()
+                        }
+
+                    },
+                    State {
+                        name: "4"
+
+                        StateChangeScript {
+                            script:tool_actions.setFrontView()
+                        }
+
+                    }
+                ]
+
+
+
+                function setTopView(){
+
+                    var cameraDirection=Qt.vector3d(0,0,0);
+                    var up=Qt.vector3d(0,0,-1);
+
+                    cameraDirection.y=1
+
+                    // Keep the current distance and viewcenter, but change upvector to properly orient the camera.
+                    var len = mainCamera.viewVector.length();
+                    mainCamera.position=mainCamera.viewCenter.plus(cameraDirection.times(len));
+                    mainCamera.upVector=up
+
+
+                }
+
                 QQC2.Button{
                     width: 100
                     height: 50
@@ -344,19 +413,25 @@ QQC2.ApplicationWindow {
 
                     onClicked: {
 
-                        var cameraDirection=Qt.vector3d(0,0,0);
-                        var up=Qt.vector3d(0,0,-1);
 
-                        cameraDirection.y=1
-
-                        // Keep the current distance and viewcenter, but change upvector to properly orient the camera.
-                        var len = mainCamera.viewVector.length();
-                        mainCamera.position=mainCamera.viewCenter.plus(cameraDirection.times(len));
-                        mainCamera.upVector=up
-
-
+                        tool_actions.state="0"
 
                     }
+                }
+
+                function setLeftView(){
+
+                    var cameraDirection=Qt.vector3d(0,0,0);
+                    var up=Qt.vector3d(0,1,0);
+
+                    cameraDirection.x=1
+
+                    // Keep the current distance and viewcenter, but change upvector to properly orient the camera.
+                    var len = mainCamera.viewVector.length();
+                    mainCamera.position=mainCamera.viewCenter.plus(cameraDirection.times(len));
+                    mainCamera.upVector=up
+
+
                 }
 
                 QQC2.Button{
@@ -368,21 +443,27 @@ QQC2.ApplicationWindow {
 
                     onClicked: {
 
-                        var cameraDirection=Qt.vector3d(0,0,0);
-                        var up=Qt.vector3d(0,1,0);
 
-                        cameraDirection.x=1
-
-                        // Keep the current distance and viewcenter, but change upvector to properly orient the camera.
-                        var len = mainCamera.viewVector.length();
-                        mainCamera.position=mainCamera.viewCenter.plus(cameraDirection.times(len));
-                        mainCamera.upVector=up
-
+                        tool_actions.state="1"
 
 
                     }
                 }
 
+                function setBackView(){
+
+                    var cameraDirection=Qt.vector3d(0,0,0);
+                    var up=Qt.vector3d(0,1,0);
+
+                    cameraDirection.z=-1
+
+                    // Keep the current distance and viewcenter, but change upvector to properly orient the camera.
+                    var len = mainCamera.viewVector.length();
+                    mainCamera.position=mainCamera.viewCenter.plus(cameraDirection.times(len));
+                    mainCamera.upVector=up
+
+
+                }
 
 
                 QQC2.Button{
@@ -394,15 +475,7 @@ QQC2.ApplicationWindow {
 
                     onClicked: {
 
-                        var cameraDirection=Qt.vector3d(0,0,0);
-                        var up=Qt.vector3d(0,1,0);
-
-                        cameraDirection.z=-1
-
-                        // Keep the current distance and viewcenter, but change upvector to properly orient the camera.
-                        var len = mainCamera.viewVector.length();
-                        mainCamera.position=mainCamera.viewCenter.plus(cameraDirection.times(len));
-                        mainCamera.upVector=up
+                        tool_actions.state="2"
 
 
 
@@ -410,7 +483,21 @@ QQC2.ApplicationWindow {
                 }
 
 
+                function setRightView(){
 
+                    var cameraDirection=Qt.vector3d(0,0,0);
+                    var up=Qt.vector3d(0,1,0);
+
+                    cameraDirection.x=-1
+
+                    // Keep the current distance and viewcenter, but change upvector to properly orient the camera.
+                    var len = mainCamera.viewVector.length();
+                    mainCamera.position=mainCamera.viewCenter.plus(cameraDirection.times(len));
+                    mainCamera.upVector=up
+
+
+
+                }
 
                 QQC2.Button{
                     width: 100
@@ -421,20 +508,24 @@ QQC2.ApplicationWindow {
 
                     onClicked: {
 
-                        var cameraDirection=Qt.vector3d(0,0,0);
-                        var up=Qt.vector3d(0,1,0);
-
-                        cameraDirection.x=-1
-
-                        // Keep the current distance and viewcenter, but change upvector to properly orient the camera.
-                        var len = mainCamera.viewVector.length();
-                        mainCamera.position=mainCamera.viewCenter.plus(cameraDirection.times(len));
-                        mainCamera.upVector=up
-
-
-
+                        tool_actions.state="3"
                     }
                 }
+
+
+                function setFrontView(){
+                    var cameraDirection=Qt.vector3d(0,0,0);
+                    var up=Qt.vector3d(0,1,0);
+
+                    cameraDirection.z=1
+
+                    // Keep the current distance and viewcenter, but change upvector to properly orient the camera.
+                    var len = mainCamera.viewVector.length();
+                    mainCamera.position=mainCamera.viewCenter.plus(cameraDirection.times(len));
+                    mainCamera.upVector=up
+
+                }
+
                 QQC2.Button{
                     width: 100
                     height: 50
@@ -444,16 +535,8 @@ QQC2.ApplicationWindow {
 
                     onClicked: {
 
-                        var cameraDirection=Qt.vector3d(0,0,0);
-                        var up=Qt.vector3d(0,1,0);
-
-                        cameraDirection.z=1
-
-                        // Keep the current distance and viewcenter, but change upvector to properly orient the camera.
-                        var len = mainCamera.viewVector.length();
-                        mainCamera.position=mainCamera.viewCenter.plus(cameraDirection.times(len));
-                        mainCamera.upVector=up
-
+                        tool_actions.state="4"
+                        //                        parent.setFrontView()
 
 
                     }
@@ -476,19 +559,7 @@ QQC2.ApplicationWindow {
 
                     onAngleChanged: {
 
-                        ////                selectedTransform.rotation=selectedTransform.fromAxisAndAngle(Qt.vector3d(0, 1, 0), angle)
-                        //                //take the existing matrix to not lose any previous transformations
-                        //                   var m_target=scene.selectionItem.entityTransform()
-                        //                   var m_matrix =Qt.matrix4x4()
-                        //                    m_matrix = m_target.matrix;
-                        //                    var _rotationOrigin=m_target.translation
-                        //                   // Move to the origin point of the rotation, _rotationOrigin would be a member variable
-                        //                   m_matrix.translate(_rotationOrigin);
-                        //                   // rotate (around the y axis)
-                        //                   m_matrix.rotate(angle, Qt.vector3d(0, 1, 0));
-                        //                   // translate back
-                        //                   m_matrix.translate(-_rotationOrigin);
-                        //                 scene.selectionItem.entityTransform().matrix=m_matrix;
+
 
 
                         selectedTransform.rotation=selectedTransform.fromAxisAndAngle(Qt.vector3d(0, 0, 1), angle)
@@ -530,85 +601,24 @@ QQC2.ApplicationWindow {
         }
 
 
-        Component{
+        Timer{
+            id:camview_timer
+            running: false
+            property int count: 0
+            interval: 2500
+            repeat: true
+            onTriggered: {
 
-            InfoWindow {
-                id: info_item
+                console.log("Triggred")
 
+               tool_actions.state=count.toString()
 
-                width: parent.width
-                height: 50
+                camview_timer.count++
 
-                property int infoIndex: index
+                if(camview_timer.count>4)camview_timer.count=0;
 
-
-                //                entityName: modelData
-
-
-
-                showConnector: info_container.selectedItemIndex==index
-                MouseArea{
-                    anchors.fill: parent
-                    onPressed: {
-                        info_container.selectedItemIndex=index
-                    }
-                }
-
-                Rectangle{
-                    id:info_rect
-                    radius: 10
-
-                    anchors.right: parent.right
-                    anchors.verticalCenter: parent.verticalCenter
-
-                    width: info_container.selectedItemIndex==index?parent.width+20:parent.width
-                    Behavior on width {
-                        PropertyAnimation{
-                            easing.type: Easing.InOutBack
-                            duration: 500
-                        }
-                    }
-
-                    height: parent.height
-
-                    color: "red"
-                    border.color: "black";
-
-                    opacity: 0.5
-
-                }
-                Text {
-                    anchors.centerIn: info_rect
-                    color: "white"
-                    font.pixelSize: 12
-                    text: qsTr("text")
-                }
-                z:9999
             }
-
-
         }
-
-
-
-
-
-        //        Timer{
-        //            id:add_timer
-
-        //            property int count: 0
-        //            interval: 5000
-        //            repeat: false
-        //            onTriggered: {
-
-        ////                scene.addInfoWindow(repeater.itemAt(count))
-
-        //                add_timer.count++
-
-        //                if(add_timer.count<3) add_timer.start()
-
-        //            }
-        //        }
 
         Item {
             Layout.fillWidth: true
@@ -618,18 +628,24 @@ QQC2.ApplicationWindow {
                 anchors.fill: parent
                 scene: scene
 
+
                 Flickable{
+                    id:flick
+                    clip: true
                     anchors.right: parent.right
                     anchors.top: parent.top
                     anchors.bottom: parent.bottom
-                    width: 100
+                    width: 150
 
-                    onDragStarted: {
-                        console.log("drag start")
-                    }
-                    onDragEnded: {
-                        console.log("drag ended")
-                    }
+                    //                    onContentYChanged:
+
+                    //                    onDraggingChanged: console.log("dragging")
+                    //                    onDragStarted: {
+                    //                        console.log("drag start")
+                    //                    }
+                    //                    onDragEnded: {
+                    //                        console.log("drag ended")
+                    //                    }
 
                     interactive: true
                     contentHeight: flow.height
@@ -641,9 +657,15 @@ QQC2.ApplicationWindow {
                         anchors.top: parent.top
                         anchors.left: parent.left
                         spacing: 5
+                        layoutDirection: Qt.RightToLeft
 
                         Component.onCompleted: {
                             scene.addNewMessage("torus","torus message")
+
+                            scene.addNewMessage("Cylinder","Cylinder message")
+
+                            scene.addNewMessage("monkey","monkey message")
+
 
 
                         }
@@ -656,14 +678,26 @@ QQC2.ApplicationWindow {
                             model:scene.infoMessages
 
                             InfoWindow {
-                                id: info_item
+                                id: infowindow
 
-
-                                width: parent.width
+                                editorScene: scene
+                                width: parent.width-20
+                                //                                anchors.right: parent.right
                                 height: 50
+
+                                //                                scale: isSelected?1:0.75
+                                //                                Behavior on scale {
+                                //                                    PropertyAnimation{
+                                //                                        easing.type: Easing.InOutCubic
+                                //                                        duration: 500
+                                //                                    }
+                                //                                }
 
                                 property int infoIndex: index
 
+                                property bool selectionFlag: true
+                                //                                isSelected:info_container.selectedItemIndex==index && selectionFlag
+                                isSelected:scene.selectionItem&&scene.selectionItem==sceneItem
 
                                 infoMessage: infoMessageItem
                                 onInfoMessageChanged: {
@@ -671,44 +705,84 @@ QQC2.ApplicationWindow {
                                 }
 
 
+                                Connections{
+                                    target: flick
+                                    onContentYChanged:infowindow.updateLinePosition()
+                                }
 
-                                showConnector: info_container.selectedItemIndex==index
+
+
+
+                                showConnector: isSelected
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked: {
-                                        info_container.selectedItemIndex=index
+                                        if(scene.selection==sceneItem.entity()){
+                                            scene.selection=null
+                                            camview_timer.stop()
+                                        }
+                                        else{
+                                            scene.selection=sceneItem.entity()
+                                            scene.allTransparent(scene.selectionItem)
+                                            tool_actions.fitSelected()
+                                            camview_timer.start()
+                                        }
+
+
                                     }
                                 }
 
                                 Rectangle{
                                     id:info_rect
                                     radius: 10
+                                    color: "transparent"
+                                    border.color: "black";
+                                    border.width: isSelected?1:0
+                                    Rectangle{
+                                        anchors.fill: parent
+                                        radius: 10
+                                        color: "red"
+                                        opacity: 0.4
+                                    }
+                                    Text {
+                                        anchors.centerIn: info_rect
+                                        color: "white"
+                                        font.pixelSize:11
+                                        scale: infowindow.isSelected?1:0.75
+                                        Behavior on scale{
+                                            PropertyAnimation{
+                                                easing.type: Easing.InOutCubic
+                                                duration: 500
+                                            }
+                                        }
+                                        font.bold: true
+                                        text: infoMessageItem.message
+                                    }
+
 
                                     anchors.right: parent.right
                                     anchors.verticalCenter: parent.verticalCenter
 
-                                    width: info_container.selectedItemIndex==index?parent.width+20:parent.width
+                                    onWidthChanged: {
+                                        infowindow.updateLinePosition()
+                                    }
+
+                                    width: isSelected?parent.width+20:parent.width
+
                                     Behavior on width {
                                         PropertyAnimation{
-                                            easing.type: Easing.InOutBack
+                                            easing.type: Easing.InOutCubic
                                             duration: 500
                                         }
                                     }
 
                                     height: parent.height
 
-                                    color: "red"
-                                    border.color: "black";
 
-                                    opacity: 0.5
 
                                 }
-                                Text {
-                                    anchors.centerIn: info_rect
-                                    color: "white"
-                                    font.pixelSize: 12
-                                    text: infoMessageItem.entityName
-                                }
+
+
                                 z:9999
                             }
 
@@ -716,93 +790,11 @@ QQC2.ApplicationWindow {
                         }
                     }
 
+
+
                 }
 
 
-                //                ListView{
-                //                    id:info_container
-                //                    anchors.right: parent.right
-                //                    anchors.top: parent.top
-                //                    anchors.bottom: parent.bottom
-                //                    width: 100
-
-                //                    Component.onCompleted: {
-
-                ////                        info_container.positionViewAtIndex()
-                //                        scene.addNewMessage("torus","torus message")
-                //                        //                        add_timer.start()
-                //                    }
-
-                //                    delegate: QQC2.ItemDelegate {
-                //                        width: parent.width
-
-
-
-                //                        InfoWindow {
-                //                            id: info_item
-
-
-                //                            width: parent.width
-                //                            height: 50
-
-                //                            property int infoIndex: index
-
-
-                //                            infoMessage: infoMessageItem
-                //                            onInfoMessageChanged: {
-                //                                infoMessage.infoWindow=this
-                //                            }
-
-
-
-                //                            showConnector: info_container.selectedItemIndex==index
-                //                            MouseArea{
-                //                                anchors.fill: parent
-                //                                onPressed: {
-                //                                    info_container.selectedItemIndex=index
-                //                                }
-                //                            }
-
-                //                            Rectangle{
-                //                                id:info_rect
-                //                                radius: 10
-
-                //                                anchors.right: parent.right
-                //                                anchors.verticalCenter: parent.verticalCenter
-
-                //                                width: info_container.selectedItemIndex==index?parent.width+20:parent.width
-                //                                Behavior on width {
-                //                                    PropertyAnimation{
-                //                                        easing.type: Easing.InOutBack
-                //                                        duration: 500
-                //                                    }
-                //                                }
-
-                //                                height: parent.height
-
-                //                                color: "red"
-                //                                border.color: "black";
-
-                //                                opacity: 0.5
-
-                //                            }
-                //                            Text {
-                //                                anchors.centerIn: info_rect
-                //                                color: "white"
-                //                                font.pixelSize: 12
-                //                                text: infoMessageItem.entityName
-                //                            }
-                //                            z:9999
-                //                        }
-
-
-                //                    }
-                //                    property int selectedItemIndex
-
-                //                    model: scene.infoMessages
-                //                    z:9999
-
-                //                }
 
             }
         }

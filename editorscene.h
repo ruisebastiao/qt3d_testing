@@ -278,6 +278,7 @@ public slots:
         emit infoMessagesChanged(m_infoMessages);
     }
 
+    Q_INVOKABLE void allVisible(SceneItem *skipItem);
 signals:
     void selectionChanged(Qt3DCore::QEntity *selection);
     void multiSelectionListChanged();
@@ -293,7 +294,7 @@ signals:
     void mouseRightButtonReleasedWithoutDragging();
 
 
-
+    void sceneItemAdded(SceneItem *itemAdded);
 
 
     void worldPositionLabelUpdate(const QString &wpX, const QString &wpY, const QString &wpZ);
@@ -357,7 +358,7 @@ private:
 
 
 
-    SceneItem *itemByName(const QString &name);
+    Q_INVOKABLE SceneItem *itemByName(const QString &name);
     void clearSingleSelection();
     Q_INVOKABLE void doUpdateGroupSelectionBoxes();
     void enableHelperArrows(bool enable);
@@ -448,7 +449,7 @@ private:
     bool m_groupBoxUpdatePending;
 
     Qt3DRender::QCamera* m_activeCamera=nullptr;
-    SceneItem * m_selectionItem;
+    SceneItem * m_selectionItem=nullptr;
     InfoMessageListModel* m_infoMessages=new InfoMessageListModel();
 };
 //Q_DECLARE_METATYPE(Qt3DCore::QTransform*);

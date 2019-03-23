@@ -7,10 +7,10 @@
 
 
 #include "editorsceneitemmeshcomponentsmodel.h" // For mesh type determination
-//#include "linemesh.h"
 
 
-class LineMesh;
+
+
 
 namespace Qt3DCore {
 class QEntity;
@@ -113,7 +113,7 @@ public:
 
     bool isBase() const;
 
-    LineMesh *getLinemesh() const;
+
 
 public slots:
     void updateSelectionBoxTransform();
@@ -147,7 +147,7 @@ private:
 
     QVector<QVector3D> getSelectionBoxCorners(const QMatrix4x4 &matrix);
 
-    Qt3DCore::QEntity *m_InfoConnectorEntity=nullptr;
+
 
     QMatrix4x4 m_unadjustedSelectionBoxMatrix;
     EditorSceneItemMeshComponentsModel::MeshComponentTypes m_entityMeshType;
@@ -183,7 +183,7 @@ private:
     QVector3D m_selectionBoxCenter;
 
 
-    LineMesh* m_linemesh=nullptr;
+
 
     bool m_canRotate;
     // Internal pickers are for example pickers of hidden scene loader meshes.

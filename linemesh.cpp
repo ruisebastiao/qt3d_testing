@@ -64,124 +64,124 @@ void LineMesh::posUpdate(QVariantList poslistvariant)
     emit finished();
 }
 
-InfoWindow *LineMesh::targetItem() const
-{
-    return m_targetItem;
-}
+//InfoWindow *LineMesh::targetItem() const
+//{
+//    return m_targetItem;
+//}
 
-SceneItem *LineMesh::sourceSceneItem() const
-{
-    return m_sourceSceneItem;
-}
+//SceneItem *LineMesh::sourceSceneItem() const
+//{
+//    return m_sourceSceneItem;
+//}
 
 void LineMesh::updateLinePosition(){
     QList<QVector4D> pos;
 
 
-    if(m_sourceSceneItem && m_targetItem){
+//    if(m_sourceSceneItem && m_targetItem){
 
-        //        qDebug()<<"Transform:"<< EditorUtils::totalAncestralTransform(m_sourceSceneItem->entity());
-        pos.append(m_sourceSceneItem->selectionBoxCenter());
+//        //        qDebug()<<"Transform:"<< EditorUtils::totalAncestralTransform(m_sourceSceneItem->entity());
+//        pos.append(m_sourceSceneItem->selectionBoxCenter());
 
-        EditorViewportItem* viewport=m_sourceSceneItem->scene()->viewport();
+//        EditorViewportItem* viewport=m_sourceSceneItem->scene()->viewport();
 
-        if(viewport){
-            QRectF mapped=m_targetItem->mapRectToItem(viewport,m_targetItem->childrenRect());
+//        if(viewport){
+//            QRectF mapped=m_targetItem->mapRectToItem(viewport,m_targetItem->childrenRect());
 
-            qDebug()<<"mapped:"<<mapped;
-            QVector3D worldpos=m_sourceSceneItem->scene()->getWorldPosition(mapped.x(),mapped.y()+m_targetItem->height()/2);
+//            qDebug()<<"mapped:"<<mapped;
+//            QVector3D worldpos=m_sourceSceneItem->scene()->getWorldPosition(mapped.x(),mapped.y()+m_targetItem->height()/2);
 
-            pos.append(QVector4D(worldpos.x(),worldpos.y(),worldpos.z(),0));
+//            pos.append(QVector4D(worldpos.x(),worldpos.y(),worldpos.z(),0));
 
-            posUpdate(pos);
-        }
+//            posUpdate(pos);
+//        }
 
-    }
+//    }
 
 }
 
-void LineMesh::setTargetItem(InfoWindow *targetItem)
-{
-    if (m_targetItem == targetItem)
-        return;
+//void LineMesh::setTargetItem(InfoWindow *targetItem)
+//{
+//    if (m_targetItem == targetItem)
+//        return;
 
-    m_targetItem = targetItem;
+//    m_targetItem = targetItem;
 
-    if(m_targetItem){
-        connect(targetItem,&InfoWindow::showConnectorChanged,[&](bool showconnector){
+//    if(m_targetItem){
+//        connect(targetItem,&InfoWindow::showConnectorChanged,[&](bool showconnector){
 
-            this->parentNode()->setEnabled(showconnector);
+//            this->parentNode()->setEnabled(showconnector);
 
-        });
-        connect(targetItem,&InfoWindow::childrenRectChanged,this,&LineMesh::updateLinePosition);
+//        });
+//        connect(targetItem,&InfoWindow::childrenRectChanged,this,&LineMesh::updateLinePosition);
 
-        this->parentNode()->setEnabled(targetItem->showConnector());
-    }
-
-
-    updateLinePosition();
-
-    emit targetItemChanged(m_targetItem);
-}
-
-void LineMesh::setSourceSceneItem(SceneItem *sourceSceneItem)
-{
-    if (m_sourceSceneItem== sourceSceneItem)
-        return;
-
-    m_sourceSceneItem= sourceSceneItem;
-    if(m_sourceSceneItem){
-
-        Qt3DRender::QCamera* camera= m_sourceSceneItem->scene()->activeCamera();
+//        this->parentNode()->setEnabled(targetItem->showConnector());
+//    }
 
 
-        connect(m_sourceSceneItem->scene(),&EditorScene::activeCameraChanged,[&](Qt3DRender::QCamera* activecamera){
-            if(activecamera){
-                connect(activecamera,&Qt3DRender::QCamera::viewVectorChanged,this,&LineMesh::updateLinePosition);
-                //                connect(activecamera,&Qt3DRender::QCamera::upVectorChanged,this,&LineMesh::updateLinePosition);
-                this->updateLinePosition();
-            }
+//    updateLinePosition();
 
-        });
+//    emit targetItemChanged(m_targetItem);
+//}
 
-        if(camera){
-            connect(camera,&Qt3DRender::QCamera::viewVectorChanged,this,&LineMesh::updateLinePosition);
-        }
+//void LineMesh::setSourceSceneItem(SceneItem *sourceSceneItem)
+//{
+//    if (m_sourceSceneItem== sourceSceneItem)
+//        return;
 
+//    m_sourceSceneItem= sourceSceneItem;
+//    if(m_sourceSceneItem){
 
-        EditorViewportItem* viewport=m_sourceSceneItem->scene()->viewport();
-        if(viewport){
-            //            connect(viewport,&EditorViewportItem::widthChanged,this,&LineMesh::updateLinePosition);
-            connect(viewport,&EditorViewportItem::widthChanged,[&](){
-                this->updateLinePosition();
-            });
-
-            connect(viewport,&EditorViewportItem::heightChanged,this,&LineMesh::updateLinePosition);
-        }
-        else{
-            connect(m_sourceSceneItem->scene(),&EditorScene::viewportChanged,[&](EditorViewportItem *viewport){
-                if(viewport){
-                    connect(viewport,&EditorViewportItem::widthChanged,[&](){
-                        this->updateLinePosition();
-                    });
-                    connect(viewport,&EditorViewportItem::heightChanged,this,&LineMesh::updateLinePosition);
-                }
-            });
-        }
+//        Qt3DRender::QCamera* camera= m_sourceSceneItem->scene()->activeCamera();
 
 
+//        connect(m_sourceSceneItem->scene(),&EditorScene::activeCameraChanged,[&](Qt3DRender::QCamera* activecamera){
+//            if(activecamera){
+//                connect(activecamera,&Qt3DRender::QCamera::viewVectorChanged,this,&LineMesh::updateLinePosition);
+//                //                connect(activecamera,&Qt3DRender::QCamera::upVectorChanged,this,&LineMesh::updateLinePosition);
+//                this->updateLinePosition();
+//            }
+
+//        });
+
+//        if(camera){
+//            connect(camera,&Qt3DRender::QCamera::viewVectorChanged,this,&LineMesh::updateLinePosition);
+//        }
+
+
+//        EditorViewportItem* viewport=m_sourceSceneItem->scene()->viewport();
+//        if(viewport){
+//            //            connect(viewport,&EditorViewportItem::widthChanged,this,&LineMesh::updateLinePosition);
+//            connect(viewport,&EditorViewportItem::widthChanged,[&](){
+//                this->updateLinePosition();
+//            });
+
+//            connect(viewport,&EditorViewportItem::heightChanged,this,&LineMesh::updateLinePosition);
+//        }
+//        else{
+//            connect(m_sourceSceneItem->scene(),&EditorScene::viewportChanged,[&](EditorViewportItem *viewport){
+//                if(viewport){
+//                    connect(viewport,&EditorViewportItem::widthChanged,[&](){
+//                        this->updateLinePosition();
+//                    });
+//                    connect(viewport,&EditorViewportItem::heightChanged,this,&LineMesh::updateLinePosition);
+//                }
+//            });
+//        }
 
 
 
 
 
-    }
 
 
-    updateLinePosition();
+//    }
 
-    emit sourceSceneItemChanged(m_sourceSceneItem);
-}
+
+//    updateLinePosition();
+
+//    emit sourceSceneItemChanged(m_sourceSceneItem);
+//}
 
 LineMesh::~LineMesh()
 {

@@ -207,14 +207,15 @@ void EditorScene::addEntity(Qt3DCore::QEntity *entity, int index, Qt3DCore::QEnt
         item->componentsModel()->initializeModel();
     }
 
-    for (int var = 0; var < m_infoMessages->length(); ++var) {
-        InfoWindow* infowindow=m_infoMessages->at(var)->infoWindow();
-        if(infowindow->infoMessage() && infowindow->infoMessage()->entityName()==entity->objectName()){
-            item->getLinemesh()->setTargetItem(infowindow);
-            break;
-        }
-    }
+//    for (int var = 0; var < m_infoMessages->length(); ++var) {
+//        InfoWindow* infowindow=m_infoMessages->at(var)->infoWindow();
+//        if(infowindow->infoMessage() && infowindow->infoMessage()->entityName()==entity->objectName()){
+//            item->getLinemesh()->setTargetItem(infowindow);
+//            break;
+//        }
+//    }
 
+    emit sceneItemAdded(item);
     if (item->itemType() != SceneItem::SceneLoader) {
         foreach (QObject *child, entity->children()) {
             Qt3DCore::QEntity *childEntity = qobject_cast<Qt3DCore::QEntity *>(child);
@@ -397,6 +398,27 @@ QVector3D EditorScene::getWorldPosition(int xPos, int yPos)
 
     return retVec;
 }
+void EditorScene::allVisible(SceneItem *skipItem)
+{
+
+    Q_FOREACH (SceneItem *item, m_sceneItems.values()) {
+
+        if(item && item->parentItem()==m_baseEntityItem){
+
+            if (item!= skipItem)
+                item->setTransparent(false);
+            else {
+
+            }
+        }
+    }
+
+    if(skipItem){
+        skipItem->setTransparent(true);
+    }
+
+
+}
 
 void EditorScene::allTransparent(SceneItem *skipItem)
 {
@@ -413,7 +435,10 @@ void EditorScene::allTransparent(SceneItem *skipItem)
         }
     }
 
-    skipItem->setTransparent(false);
+    if(skipItem){
+        skipItem->setTransparent(false);
+    }
+
 
 }
 
@@ -892,6 +917,16 @@ void EditorScene::setActiveCamera(Qt3DRender::QCamera *activeCamera)
 void EditorScene::setSelection(Qt3DCore::QEntity *entity)
 {
     // Setting selection implies end to multiSelection
+
+    if(!entity){
+        clearMultiSelection();
+        clearSingleSelection();
+        setSelectionItem(nullptr);
+        allVisible(nullptr);
+        return;
+    }
+
+
     if (m_selectedEntityNameList.size())
         clearMultiSelection();
     SceneItem *item = m_sceneItems.value(entity->id(), nullptr);
